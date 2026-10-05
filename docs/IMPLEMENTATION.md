@@ -8,13 +8,13 @@ _Last updated: 2026-10-05_
 - React
 - React Three Fiber
 - Three.js
-- Drei environment/model helpers
+- Drei environment/texture helpers
 - GSAP for controlled transitions
 - TypeScript in strict mode
 
 ## Experience architecture
 
-The 3D rail is the primary homepage hero/product-discovery system rather than an isolated demo widget.
+The 3D rail remains the primary homepage hero/product-discovery system. Bottle instances still move through 3D space, but the current bottle visual is intentionally **reference-locked 2.5D** so no unseen geometry is invented.
 
 ### Current interaction
 
@@ -22,45 +22,52 @@ The 3D rail is the primary homepage hero/product-discovery system rather than an
 2. Drag/swipe follows pointer movement.
 3. Release uses drag distance plus velocity projection to pick the snap destination.
 4. Edge overscroll is damped.
-5. Bottles swing/twist subtly while the rail is moving.
+5. Bottles swing subtly while the rail is moving.
 6. Mouse wheel/trackpad advances through bottles on desktop.
 7. The centered bottle is active.
 8. Clicking the active bottle moves it toward camera; camera position also pushes in.
 9. Other bottles recede and scene/UI emphasis shifts to the selection.
-10. Detail UI can reveal real notes/inspiration when those fields are later populated.
+10. The bottle stays close to front-facing so the exact supplied photograph remains visually authoritative.
 
-### 3D asset strategy
+## No-guess asset strategy
 
-The Amber Touch bottle is now a **real GLB project asset**, not inline procedural JSX geometry.
+The previous generated GLB pipeline has been removed because it inferred bottle depth and hidden geometry from a single front photo.
 
-`scripts/prepare-assets.mjs` runs automatically before dev/build and:
-- decodes the supplied reference into `public/reference/amber-touch.webp`;
-- generates `public/models/amber-touch.glb`;
-- builds the GLB from a photo-measured lofted rounded-rectangular bottle body, inner liquid, gold neck/collars, continuous lathed rippled black cap and gold top hardware;
-- stores a dedicated `Label_Front` trapezoid with resolution-independent UVs measured from the latest 1536×1536 reference, covering the same near-full-height label area visible in the real bottle.
+scripts/prepare-assets.mjs now only decodes the exact owner-supplied front reference into public/reference/amber-touch.webp.
 
-`Bottle.tsx` loads the GLB with `useGLTF`, clones the same model for all seven products, reapplies web-friendly physical glass/liquid/gold materials, and maps the real supplied reference image onto `Label_Front`.
+Bottle.tsx loads that exact reference with useTexture and renders it on a 3D plane.
 
-GLB v2 keeps one global reference-to-model scale for body, neck and cap proportions; only bottle depth is inferred because no side reference exists. This is the format expected by the Three.js project and remains replaceable by a later artist-made GLB.
+The shader:
+- crops to the measured bottle bounds from the source image;
+- keys only the white studio background;
+- preserves the label region so white label text is not removed;
+- un-mattes keyed pixels to avoid the white halo from the source background;
+- does not redraw the label, cap, glass, gold or liquid;
+- does not infer side/depth geometry.
 
-### Lighting
+This is the only implementation that can satisfy the owner's “no guessing” constraint from the currently available front-only data.
 
-The scene uses a small local environment map generated with Drei lightformers plus direct warm/cool lights. No remote HDR asset is required.
+## True 3D re-entry condition
+
+A production GLB is deferred until we have non-inferred depth/side information: measured dimensions, side/top/back reference views with scale, supplier CAD/model, or a scan.
+
+## Lighting
+
+The scene lighting remains for the environment/background and interaction mood. The reference-locked bottle plane is unlit/tone-mapping-disabled so the supplied product photography is not reinterpreted by synthetic PBR materials.
 
 ## Performance rules
 
 - Cap DPR.
-- Reuse the same GLB geometry across the seven clones.
-- Reuse common material instances where possible.
-- Avoid post-processing until profiling supports it.
-- Keep environment resolution modest.
+- Reuse the same front reference texture across all seven instances.
+- Avoid unnecessary post-processing.
+- Keep the bottle plane nearly front-facing.
 - Respect reduced-motion preferences.
-- Profile seven transmissive bottles before adding additional expensive effects.
+- Profile the full rail on mobile after visual approval.
 
 ## Static hosting
 
-`next.config.ts` uses static export. Vercel is the active public preview target.
+next.config.ts uses static export. Vercel is the active public preview target.
 
 ## Execution tracking
 
-The canonical implementation checklist is `docs/TASKS.md`. Mark tasks complete as they are actually finished.
+The canonical implementation checklist is docs/TASKS.md. Mark tasks complete as they are actually finished.
