@@ -62,14 +62,14 @@ Current pinned foundation:
 - `docs/TASKS.md` is the required execution checklist.
 - Amber Touch reference asset is stored in `assets/reference/`.
 - The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle geometry is generated as a standalone GLB from the latest supplied front photo proportions: broad/faceted shoulders, tapered lower body, heavy glass foot, corrected neck ratio and a continuous rippled cap profile.
+- Bottle geometry is generated as a standalone GLB from pixel measurements of the supplied 1536×1536 front photo. Body half-widths are traced across the shoulder/body/base rows, cap radii are traced across the cap rows, and the real label UV window is mapped from the measured label corners.
 - Shared geometry/materials reduce repeated 3D resource creation.
 - Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
 - Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
 - Studio environment lightformers improve glass/gold reflections without remote HDR assets.
 - Background glow responds to rail position and interaction energy.
-- Commit `516d763` passed GitHub Actions CI run #18: dependency install, TypeScript validation and production build all succeeded, including GLB generation in the prebuild step.
-- Vercel production deployment for commit `516d763` is READY and mapped to `https://try-threejs-nu.vercel.app`.
+- Commit `09e69ec` passed GitHub Actions CI run #20: dependency install, TypeScript validation and production build all succeeded, including the pixel-traced GLB generation step.
+- Vercel production deployment for commit `09e69ec` is READY and mapped to `https://try-threejs-nu.vercel.app`.
 
 ## Prototype blockers
 
