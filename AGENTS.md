@@ -22,7 +22,7 @@ This file is mandatory reading for every coding/design agent working in this rep
 - Keep visual/interaction logic modular so assets, bottle models, copy and products can be swapped later.
 - Avoid introducing dependencies without a clear reason.
 - Do not fabricate product facts, prices, notes or brand copy that the owner has not confirmed.
-- The supplied Amber Touch front image is the current visual authority. Do not infer unseen depth, side geometry, or hidden surfaces from a front-only reference. Until measured side/depth data or an artist-made model exists, the runtime bottle must use the exact supplied front reference as a cropped/chroma-keyed 2.5D plane.
+- The supplied Amber Touch front image is the current visual authority. Do not infer unseen depth, side geometry, or hidden surfaces from a front-only reference. Until measured side/depth data or an artist-made model exists, the runtime bottle must use a preprocessed transparent 2.5D asset derived from the exact supplied front reference. Background removal must happen offline during asset preparation, not with a runtime chroma-key shader.
 
 ## Mandatory documentation update after every meaningful change
 
