@@ -28,22 +28,37 @@ function RailScene({
   const rail = useRef<THREE.Group>(null);
   const positions = useMemo(() => fragrances.map((_, index) => index * SPACING), []);
 
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, size }, delta) => {
+    const mobile = size.width < 720;
+
     if (rail.current) {
       const targetX = -activeIndex * SPACING + drag * SPACING;
       rail.current.position.x = THREE.MathUtils.damp(rail.current.position.x, targetX, 10.5, delta);
+      rail.current.position.y = THREE.MathUtils.damp(
+        rail.current.position.y,
+        mobile ? -0.38 : -0.27,
+        6,
+        delta,
+      );
     }
 
     const selected = selectedIndex !== null;
+    const targetZ = mobile
+      ? (selected ? 6.25 : 7.35)
+      : (selected ? 4.78 : 5.62);
+    const targetY = mobile
+      ? (selected ? 0.22 : 0.28)
+      : (selected ? 0.33 : 0.42);
+
     camera.position.z = THREE.MathUtils.damp(
       camera.position.z,
-      selected ? 4.78 : 5.62,
+      targetZ,
       selected ? 4.2 : 5.6,
       delta,
     );
     camera.position.y = THREE.MathUtils.damp(
       camera.position.y,
-      selected ? 0.33 : 0.42,
+      targetY,
       5,
       delta,
     );
