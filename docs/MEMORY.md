@@ -75,8 +75,12 @@ True production 3D now intentionally waits for measured depth/side information, 
 
 ## Validation
 
-Commit `7091b46` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
+Commit `55f548c` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
+
+## Retina sharpness
+
+The mobile bottle looked soft after alpha artifacts were fixed. The renderer now uses DPR 2–3, bottle texture mipmaps are disabled, anisotropy is increased, and the generated PNG is 2× upscaled with Lanczos + mild sharpening for Retina screens.
 
 ## Next step
 
-Owner reviews the PNG silhouette-mask render on mobile. If the bottle edge is visually acceptable, continue composition and interaction polish.
+Owner reviews the Retina sharpness pass on mobile. If the bottle is now crisp enough, continue composition and interaction polish.
