@@ -1,5 +1,6 @@
 "use client";
 
+import { useGLTF, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import gsap from "gsap";
 import { useLayoutEffect, useMemo, useRef } from "react";
@@ -17,201 +18,52 @@ type BottleProps = {
   onSelect: () => void;
 };
 
-const GOLD = "#d5a23b";
-const BLACK = "#080808";
-
-function createBottleShape() {
-  const shape = new THREE.Shape();
-
-  // Traced from the supplied Amber Touch front reference:
-  // narrower foot -> gently widening body -> broad faceted shoulders -> narrow neck.
-  shape.moveTo(-0.46, -0.86);
-  shape.quadraticCurveTo(-0.53, -0.855, -0.545, -0.79);
-  shape.quadraticCurveTo(-0.565, -0.28, -0.585, 0.34);
-  shape.quadraticCurveTo(-0.59, 0.455, -0.515, 0.515);
-  shape.lineTo(-0.315, 0.625);
-  shape.quadraticCurveTo(-0.255, 0.66, -0.245, 0.73);
-  shape.lineTo(-0.235, 0.82);
-  shape.lineTo(0.235, 0.82);
-  shape.lineTo(0.245, 0.73);
-  shape.quadraticCurveTo(0.255, 0.66, 0.315, 0.625);
-  shape.lineTo(0.515, 0.515);
-  shape.quadraticCurveTo(0.59, 0.455, 0.585, 0.34);
-  shape.quadraticCurveTo(0.565, -0.28, 0.545, -0.79);
-  shape.quadraticCurveTo(0.53, -0.855, 0.46, -0.86);
-  shape.quadraticCurveTo(0, -0.9, -0.46, -0.86);
-
-  return shape;
-}
-
-function createCapGeometry() {
-  // One continuous lathed profile gives the cap the broad, wrapped/rippled
-  // silhouette visible in the product photo instead of stacked straight cylinders.
-  const profile = [
-    new THREE.Vector2(0.305, -0.31),
-    new THREE.Vector2(0.345, -0.285),
-    new THREE.Vector2(0.365, -0.235),
-    new THREE.Vector2(0.35, -0.19),
-    new THREE.Vector2(0.395, -0.145),
-    new THREE.Vector2(0.415, -0.07),
-    new THREE.Vector2(0.405, 0.01),
-    new THREE.Vector2(0.37, 0.065),
-    new THREE.Vector2(0.385, 0.13),
-    new THREE.Vector2(0.395, 0.19),
-    new THREE.Vector2(0.365, 0.245),
-    new THREE.Vector2(0.335, 0.285),
-    new THREE.Vector2(0.305, 0.31),
-  ];
-
-  const geometry = new THREE.LatheGeometry(profile, 64);
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-const BOTTLE_SHAPE = createBottleShape();
-const EXTRUDE_OPTIONS = {
-  depth: 0.42,
-  steps: 1,
-  bevelEnabled: true,
-  bevelSegments: 6,
-  bevelSize: 0.045,
-  bevelThickness: 0.045,
-  curveSegments: 32,
-};
-
-const OUTER_GEOMETRY = new THREE.ExtrudeGeometry(BOTTLE_SHAPE, EXTRUDE_OPTIONS);
-OUTER_GEOMETRY.translate(0, 0, -0.21);
-OUTER_GEOMETRY.computeVertexNormals();
-
-const CAP_GEOMETRY = createCapGeometry();
-
 const GLASS_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: new THREE.Color("#e5ded2"),
-  roughness: 0.04,
+  color: "#ece6db",
+  roughness: 0.055,
   metalness: 0,
-  transmission: 0.96,
-  thickness: 0.72,
+  transmission: 0.94,
+  thickness: 0.7,
   ior: 1.49,
   transparent: true,
-  opacity: 0.92,
-  clearcoat: 0.3,
+  opacity: 0.9,
+  clearcoat: 0.32,
   clearcoatRoughness: 0.07,
-  attenuationColor: new THREE.Color("#d8c7aa"),
-  attenuationDistance: 2.25,
-  envMapIntensity: 1.85,
+  attenuationColor: new THREE.Color("#d7c8ad"),
+  attenuationDistance: 2.2,
+  envMapIntensity: 1.9,
 });
 
 const LIQUID_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: new THREE.Color("#160b05"),
+  color: "#160b05",
   roughness: 0.2,
-  metalness: 0,
-  transmission: 0.1,
-  thickness: 0.48,
+  transmission: 0.08,
+  thickness: 0.5,
   transparent: true,
-  opacity: 0.78,
-  envMapIntensity: 0.82,
+  opacity: 0.82,
+  envMapIntensity: 0.85,
 });
 
 const GOLD_MATERIAL = new THREE.MeshStandardMaterial({
-  color: new THREE.Color(GOLD),
+  color: "#d5a23b",
   metalness: 0.97,
-  roughness: 0.1,
+  roughness: 0.11,
   envMapIntensity: 2.2,
 });
 
-const GOLD_HIGHLIGHT_MATERIAL = new THREE.MeshStandardMaterial({
-  color: new THREE.Color("#f4ca68"),
+const GOLD_TOP_MATERIAL = new THREE.MeshStandardMaterial({
+  color: "#f2c55f",
   metalness: 0.99,
-  roughness: 0.055,
-  envMapIntensity: 2.5,
+  roughness: 0.065,
+  envMapIntensity: 2.45,
 });
 
 const CAP_MATERIAL = new THREE.MeshStandardMaterial({
-  color: new THREE.Color(BLACK),
+  color: "#080808",
+  metalness: 0.05,
   roughness: 0.38,
-  metalness: 0.06,
-  envMapIntensity: 0.75,
+  envMapIntensity: 0.78,
 });
-
-const labelTextureCache = new Map<string, THREE.CanvasTexture>();
-
-function createLabelTexture(name: string) {
-  if (typeof document === "undefined") return null;
-  const cached = labelTextureCache.get(name);
-  if (cached) return cached;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 744;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-
-  const gold = "#d7a63e";
-  ctx.fillStyle = "#070707";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.strokeStyle = gold;
-  ctx.lineWidth = 9;
-  ctx.strokeRect(24, 24, 464, 696);
-  ctx.lineWidth = 2;
-  ctx.strokeRect(38, 38, 436, 668);
-
-  ctx.fillStyle = gold;
-  ctx.textAlign = "center";
-  ctx.font = "500 72px Arial";
-  ctx.fillText("WAVE", 256, 126);
-
-  ctx.strokeStyle = gold;
-  ctx.lineWidth = 5;
-  for (const offset of [-11, 0, 11]) {
-    ctx.beginPath();
-    ctx.moveTo(208, 154 + offset);
-    ctx.quadraticCurveTo(256, 124 + offset, 304, 154 + offset);
-    ctx.stroke();
-  }
-
-  ctx.font = "19px Georgia";
-  ctx.fillText("Not just a Perfume... It's Your Personal Signature!", 256, 193);
-
-  const gradient = ctx.createRadialGradient(220, 300, 12, 256, 340, 104);
-  gradient.addColorStop(0, "#f5d070");
-  gradient.addColorStop(0.48, "#c98d25");
-  gradient.addColorStop(1, "#4e2b08");
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(256, 352, 98, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = gold;
-  ctx.lineWidth = 6;
-  ctx.stroke();
-
-  ctx.strokeStyle = "rgba(255,232,166,.92)";
-  ctx.lineWidth = 7;
-  for (let i = 0; i < 3; i += 1) {
-    ctx.beginPath();
-    ctx.moveTo(182, 366 + i * 11);
-    ctx.bezierCurveTo(228, 322 + i * 6, 280, 400 - i * 8, 334, 345 + i * 9);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle = gold;
-  ctx.font = "700 44px Arial";
-  ctx.fillText(name, 256, 554);
-
-  ctx.fillStyle = "#f0eee8";
-  ctx.font = "25px Arial";
-  ctx.fillText("60ml", 256, 615);
-  ctx.font = "22px Arial";
-  ctx.fillText("Extrait De Parfum", 256, 654);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  texture.needsUpdate = true;
-  labelTextureCache.set(name, texture);
-
-  return texture;
-}
 
 export function Bottle({
   fragrance,
@@ -225,10 +77,54 @@ export function Bottle({
 }: BottleProps) {
   const transformRoot = useRef<THREE.Group>(null);
   const swingRoot = useRef<THREE.Group>(null);
-  const labelTexture = useMemo(
-    () => createLabelTexture(fragrance.name ?? "WAVE"),
-    [fragrance.name],
-  );
+
+  const { scene } = useGLTF("/models/amber-touch.glb");
+  const referenceTexture = useTexture("/reference/amber-touch.webp");
+
+  const model = useMemo(() => {
+    referenceTexture.colorSpace = THREE.SRGBColorSpace;
+    referenceTexture.flipY = false;
+    referenceTexture.anisotropy = 4;
+    referenceTexture.needsUpdate = true;
+
+    const labelMaterial = new THREE.MeshStandardMaterial({
+      map: referenceTexture,
+      roughness: 0.48,
+      metalness: 0.025,
+      side: THREE.DoubleSide,
+      envMapIntensity: 0.7,
+    });
+
+    const clone = scene.clone(true);
+
+    clone.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+
+      object.castShadow = true;
+      object.receiveShadow = true;
+
+      if (object.name === "Bottle_Glass" || object.name === "Bottle_Foot") {
+        object.material = GLASS_MATERIAL;
+      } else if (object.name === "Bottle_Liquid") {
+        object.material = LIQUID_MATERIAL;
+      } else if (
+        object.name === "Neck_Gold" ||
+        object.name === "Collar_Low" ||
+        object.name === "Collar_High" ||
+        object.name === "Cap_Gold_Rim"
+      ) {
+        object.material = GOLD_MATERIAL;
+      } else if (object.name === "Cap_Gold_Top") {
+        object.material = GOLD_TOP_MATERIAL;
+      } else if (object.name === "Cap_Black_Rippled") {
+        object.material = CAP_MATERIAL;
+      } else if (object.name === "Label_Front") {
+        object.material = labelMaterial;
+      }
+    });
+
+    return clone;
+  }, [scene, referenceTexture, fragrance.id]);
 
   useFrame((_, delta) => {
     if (!swingRoot.current) return;
@@ -291,62 +187,10 @@ export function Bottle({
       }}
     >
       <group ref={swingRoot}>
-        <mesh castShadow>
-          <primitive object={OUTER_GEOMETRY} attach="geometry" />
-          <primitive object={GLASS_MATERIAL} attach="material" />
-        </mesh>
-
-        <group scale={[0.865, 0.86, 0.7]} position={[0, -0.12, -0.012]}>
-          <mesh>
-            <primitive object={OUTER_GEOMETRY} attach="geometry" />
-            <primitive object={LIQUID_MATERIAL} attach="material" />
-          </mesh>
-        </group>
-
-        <mesh position={[0, -0.825, 0.005]} scale={[1, 1, 0.96]}>
-          <boxGeometry args={[0.94, 0.12, 0.4]} />
-          <primitive object={GLASS_MATERIAL} attach="material" />
-        </mesh>
-
-        <mesh position={[0, -0.055, 0.257]}>
-          <planeGeometry args={[0.92, 1.35]} />
-          {labelTexture ? (
-            <meshStandardMaterial
-              map={labelTexture}
-              roughness={0.48}
-              metalness={0.035}
-              envMapIntensity={0.7}
-            />
-          ) : (
-            <meshStandardMaterial color={BLACK} roughness={0.5} />
-          )}
-        </mesh>
-
-        <mesh position={[0, 0.9, 0]}>
-          <cylinderGeometry args={[0.245, 0.27, 0.17, 64]} />
-          <primitive object={GOLD_MATERIAL} attach="material" />
-        </mesh>
-
-        <mesh position={[0, 0.995, 0]}>
-          <cylinderGeometry args={[0.305, 0.285, 0.055, 64]} />
-          <primitive object={GOLD_HIGHLIGHT_MATERIAL} attach="material" />
-        </mesh>
-
-        <mesh position={[0, 1.335, 0]} castShadow>
-          <primitive object={CAP_GEOMETRY} attach="geometry" />
-          <primitive object={CAP_MATERIAL} attach="material" />
-        </mesh>
-
-        <mesh position={[0, 1.66, 0]}>
-          <cylinderGeometry args={[0.32, 0.335, 0.055, 64]} />
-          <primitive object={GOLD_MATERIAL} attach="material" />
-        </mesh>
-
-        <mesh position={[0, 1.691, 0]}>
-          <cylinderGeometry args={[0.287, 0.31, 0.018, 64]} />
-          <primitive object={GOLD_HIGHLIGHT_MATERIAL} attach="material" />
-        </mesh>
+        <primitive object={model} />
       </group>
     </group>
   );
 }
+
+useGLTF.preload("/models/amber-touch.glb");
