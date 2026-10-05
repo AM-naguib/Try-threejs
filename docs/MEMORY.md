@@ -4,15 +4,14 @@ _Last updated: 2026-10-05_
 
 ## Purpose
 
-Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3D fragrance discovery experience rather than a conventional product grid.
+Build the complete WAVE Fragrances homepage around a premium, physical-feeling fragrance discovery experience.
 
 ## Confirmed product direction
 
 - Brand: WAVE Fragrances.
-- Repository: `AM-naguib/Try-threejs`.
+- Repository: AM-naguib/Try-threejs.
 - Homepage scope: full homepage, not only an isolated hero demo.
-- Prototype catalog: 7 test instances of the same Amber Touch bottle.
-- Architecture remains data-driven so the seven real fragrances can replace the test entries later.
+- Prototype catalog: 7 test instances of Amber Touch.
 - Amber Touch reference:
   - WAVE
   - Amber Touch
@@ -21,60 +20,59 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 - Current visual language remains black + gold.
 - Both desktop and mobile are equally important.
 - Commerce integration is not required in the first pass.
+- Owner explicitly requires **no guessing** for bottle geometry or hidden dimensions.
 
 ## Confirmed interaction direction
 
 - Horizontal physical-feeling bottle rail.
-- Drag/swipe follows the user's motion.
-- Velocity influences the projected snap target.
-- Edge overscroll is resisted instead of hard-stopping.
-- Bottles swing/twist subtly during movement and settle afterward.
-- Wheel/trackpad navigation is supported on desktop.
-- Center bottle becomes active.
-- Clicking the active bottle moves it toward the camera while the camera also pushes in and surrounding UI/scene recedes.
-- Detail architecture supports approved inspiration/notes when real data is supplied.
+- Drag/swipe with velocity-aware magnetic snap.
+- Edge overscroll resistance.
+- Subtle secondary swing.
+- Wheel/trackpad navigation.
+- Center bottle active state.
+- Selected bottle advances while camera/UI choreography emphasizes it.
 
-## Technical direction
+## Current bottle strategy
 
-- Next.js App Router.
-- React + TypeScript.
-- Three.js through React Three Fiber.
-- Drei for environment lighting helpers.
-- GSAP for controlled object transitions.
-- The bottle is now a real GLB asset generated at `public/models/amber-touch.glb` before dev/build.
-- `Bottle.tsx` loads the GLB through `useGLTF`; inline bottle geometry was removed.
-- The seven bottles clone the same GLB geometry and reuse common PBR materials.
-- The front label uses UV coordinates mapped directly to the supplied Amber Touch product photo, so the visible label is the real reference artwork rather than a redrawn approximation.
-- Static export is enabled so the prototype can be hosted on static hosting.
-- DPR remains capped for performance.
+The previous inferred GLB approach is retired.
 
-Current pinned foundation:
+Reason:
+- only a straight-on product photograph is authoritative;
+- depth, side surfaces, hidden glass volume and real cap depth cannot be recovered exactly from that single view;
+- previous GLB attempts looked visually wrong because those unseen properties had to be invented.
+
+Current implementation:
+- the exact supplied front photograph is decoded to public/reference/amber-touch.webp;
+- Bottle.tsx uses that exact image as a front-facing plane in 3D space;
+- a custom shader crops the measured source bounds, keys the white studio background and removes the white matte halo;
+- the label region is explicitly preserved so white text remains intact;
+- no bottle part is redrawn and no unseen 3D dimensions are invented;
+- bottle Y rotation is intentionally kept very small.
+
+## Technical foundation
+
 - Next.js 16.3.8
 - React / React DOM 19.3.0
 - React Three Fiber 9.8.1
 - Drei 10.7.9
 - Three.js 0.186.0
 - GSAP 3.15.0
+- TypeScript strict mode
+- Static export / Vercel preview
 
 ## Current repository state
 
-- Agent rules, memory, decisions, questions, implementation plan and task ledger are present.
-- `docs/TASKS.md` is the required execution checklist.
-- Amber Touch reference asset is stored in `assets/reference/`.
-- The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle geometry is generated as a standalone GLB from pixel measurements of the supplied 1536×1536 front photo. GLB v2 uses one global image-to-model scale so the cap/body/neck proportions stay faithful to the reference, traces the shoulder/body taper row-by-row, uses a smaller measured cap radius profile, and maps the real label from its measured corners over nearly the full front panel.
-- Shared geometry/materials reduce repeated 3D resource creation.
-- Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
-- Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
-- Studio environment lightformers improve glass/gold reflections without remote HDR assets.
-- Background glow responds to rail position and interaction energy.
-- Commit `5532d12` passed GitHub Actions CI run #36: install, TypeScript validation and production build all succeeded.
-- Vercel production deployment for commit `5532d12` is READY and mapped to `https://try-threejs-nu.vercel.app`.
+- Project docs and task ledger are present.
+- Seven Amber Touch entries remain data-driven.
+- Rail physics, secondary motion, selection transition and responsive homepage shell remain implemented.
+- The inferred GLB generator was removed from scripts/prepare-assets.mjs.
+- Bottle rendering was switched from useGLTF to exact-reference useTexture rendering.
+- The original owner-supplied front reference remains the visual source of truth.
 
-- Mobile screenshot review exposed two concrete issues: the label texture was vertically inverted and the camera was too close, making the bottle dominate the viewport and collide with the hero copy. Both are corrected in the live build.\n\n- Latest mobile screenshot review showed the bottle front silhouette was acceptable enough to continue, but the materials were still visually wrong: the lower glass read as a large pale block, the body was too amber/transparent, and the gold hardware was too subdued. The live build now extends the dark liquid lower, clears the glass, darkens the liquid and boosts the gold response.\n\n## Prototype blockers
+## True 3D blocker
 
-No implementation blocker is active. The latest bottle correction is live and ready for visual approval.
+True production 3D now intentionally waits for measured depth/side information, supplier CAD/3D files, or a scan. This does not block the current exact-front prototype.
 
 ## Next step
 
-Get visual approval on the rebuilt GLB v2 bottle silhouette and real-photo label mapping from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.
+Validate CI and Vercel for the no-guess bottle mode, inspect the new mobile render, then tune composition only—without modifying the bottle itself unless new authoritative source data is supplied.
