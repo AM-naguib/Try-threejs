@@ -261,7 +261,11 @@ h1 {
   .site-header { padding-top: max(1.1rem, env(safe-area-inset-top)); }
   .site-nav { gap: .85rem; font-size: .62rem; }
   .hero-copy { top: 6rem; }
-  h1 { font-size: clamp(3rem, 15vw, 5.6rem); }
+  h1 {
+    max-width: 8ch;
+    font-size: clamp(2.65rem, 12.5vw, 4.65rem);
+    line-height: .92;
+  }
   .experience-ui {
     right: 1rem;
     bottom: max(1rem, env(safe-area-inset-bottom));
