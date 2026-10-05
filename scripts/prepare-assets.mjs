@@ -21,13 +21,30 @@ const sourceBuffer = Buffer.from(
 const fullReferencePath = path.join(publicReference, "amber-touch.webp");
 fs.writeFileSync(fullReferencePath, sourceBuffer);
 
-// Exact crop used throughout the project. It matches the supplied 1536×1536
-// source and produces a 625×1188 bottle-only working canvas.
+// Crop ratios come from the approved bottle bounds. Calculate them from the
+// real source dimensions so the pipeline is resolution-independent.
+const sourceMeta = await sharp(sourceBuffer).metadata();
+if (!sourceMeta.width || !sourceMeta.height) {
+  throw new Error("Could not read Amber Touch reference dimensions");
+}
+
+const cropRatios = {
+  left: 429 / 1536,
+  top: 84 / 1536,
+  right: 1054 / 1536,
+  bottom: 1272 / 1536,
+};
+
+const left = Math.round(sourceMeta.width * cropRatios.left);
+const top = Math.round(sourceMeta.height * cropRatios.top);
+const right = Math.round(sourceMeta.width * cropRatios.right);
+const bottom = Math.round(sourceMeta.height * cropRatios.bottom);
+
 const crop = {
-  left: 429,
-  top: 84,
-  width: 625,
-  height: 1188,
+  left,
+  top,
+  width: Math.max(1, Math.min(sourceMeta.width - left, right - left)),
+  height: Math.max(1, Math.min(sourceMeta.height - top, bottom - top)),
 };
 
 const { data, info } = await sharp(sourceBuffer)
