@@ -121,25 +121,26 @@ function loftBody(slices, count = 48, power = 4.8) {
 function labelGeometry() {
   const geometry = new BufferGeometry();
 
+  // Label corners traced from the supplied 1536×1536 product photo.
   geometry.setAttribute(
     "position",
     new Float32BufferAttribute(
       [
-        -0.455, 0.50, 0.252,
-         0.455, 0.50, 0.252,
-         0.395,-0.66, 0.252,
-        -0.395,-0.66, 0.252,
+        -0.452,  0.755, 0.252,
+         0.452,  0.755, 0.252,
+         0.366, -0.647, 0.252,
+        -0.366, -0.647, 0.252,
       ],
       3,
     ),
   );
 
-  // Exact UV window of the real label inside the 1280x1280 supplied photo.
+  // UVs point directly into the real label in the supplied product photo.
   const uv = [
-    429 / 1280, 1 - 382 / 1280,
-    780 / 1280, 1 - 380 / 1280,
-    753 / 1280, 1 - 910 / 1280,
-    461 / 1280, 1 - 910 / 1280,
+    536 / 1536, 1 - 451 / 1536,
+    963 / 1536, 1 - 451 / 1536,
+    923 / 1536, 1 - 1115 / 1536,
+    577 / 1536, 1 - 1115 / 1536,
   ];
   geometry.setAttribute("uv", new Float32BufferAttribute(uv, 2));
   geometry.setIndex([0, 2, 1, 0, 3, 2]);
@@ -147,24 +148,44 @@ function labelGeometry() {
   return geometry;
 }
 
-const bodySlices = [
-  [-0.90, 0.465, 0.205],
-  [-0.86, 0.515, 0.220],
-  [-0.78, 0.535, 0.225],
-  [-0.58, 0.545, 0.232],
-  [-0.20, 0.560, 0.238],
-  [ 0.20, 0.575, 0.243],
-  [ 0.40, 0.585, 0.245],
-  [ 0.50, 0.555, 0.238],
-  [ 0.58, 0.455, 0.220],
-  [ 0.66, 0.335, 0.195],
-  [ 0.72, 0.265, 0.170],
-  [ 0.82, 0.245, 0.160],
+const depthForWidth = (width) => 0.18 + 0.065 * (width / 0.585);
+
+// Front silhouette widths below were measured row-by-row from the supplied photo.
+// y=0.82 maps to image row 420; y=-0.90 maps to image row 1235.
+const tracedBody = [
+  [ 0.8200, 0.2380],
+  [ 0.7989, 0.2920],
+  [ 0.7778, 0.3872],
+  [ 0.7567, 0.4633],
+  [ 0.7356, 0.5300],
+  [ 0.7145, 0.5765],
+  [ 0.6934, 0.5850],
+  [ 0.6512, 0.5829],
+  [ 0.5245, 0.5744],
+  [ 0.3557, 0.5607],
+  [ 0.1869, 0.5480],
+  [ 0.0180, 0.5332],
+  [-0.1508, 0.5194],
+  [-0.3196, 0.5046],
+  [-0.4885, 0.4898],
+  [-0.6573, 0.4771],
+  [-0.7839, 0.4665],
+  [-0.8261, 0.4591],
+  [-0.8472, 0.4549],
+  [-0.8683, 0.4443],
+  [-0.8894, 0.4009],
+  [-0.9000, 0.2846],
 ];
 
+const bodySlices = tracedBody.map(([y, width]) => [
+  y,
+  width,
+  depthForWidth(width),
+]);
+
 const innerSlices = bodySlices
-  .slice(0, -2)
-  .map(([y, width, depth]) => [y + 0.015, width * 0.865, depth * 0.74]);
+  .filter(([y]) => y <= 0.70)
+  .map(([y, width, depth]) => [y + 0.018, width * 0.865, depth * 0.73]);
 
 const glassMaterial = new MeshStandardMaterial({
   name: "Glass",
@@ -220,40 +241,41 @@ function add(mesh, name) {
 add(new Mesh(loftBody(bodySlices), glassMaterial), "Bottle_Glass");
 add(new Mesh(loftBody(innerSlices), liquidMaterial), "Bottle_Liquid");
 
-const foot = new Mesh(new BoxGeometry(0.96, 0.12, 0.39), glassMaterial);
-foot.position.y = -0.845;
+// Internal base slab adds the heavy-glass look without changing the traced outer silhouette.
+const foot = new Mesh(new BoxGeometry(0.70, 0.075, 0.31), glassMaterial);
+foot.position.y = -0.815;
 add(foot, "Bottle_Foot");
 
 const label = new Mesh(labelGeometry(), labelMaterial);
 add(label, "Label_Front");
 
-const neck = new Mesh(new CylinderGeometry(0.245, 0.245, 0.22, 64), goldMaterial);
-neck.position.y = 0.91;
-add(neck, "Neck_Gold");
+// Gold neck/collar silhouette traced from image rows 420→345.
+const neckProfile = [
+  [0.2380, 0.840],
+  [0.2380, 0.895],
+  [0.2700, 0.950],
+  [0.2980, 1.050],
+  [0.3060, 1.100],
+].map(([radius, y]) => new Vector2(radius, y));
+add(new Mesh(new LatheGeometry(neckProfile, 72), goldMaterial), "Neck_Gold");
 
-const collarLow = new Mesh(new CylinderGeometry(0.305, 0.305, 0.055, 64), goldMaterial);
-collarLow.position.y = 1.035;
-add(collarLow, "Collar_Low");
-
-const collarHigh = new Mesh(new CylinderGeometry(0.325, 0.325, 0.045, 64), goldMaterial);
-collarHigh.position.y = 1.085;
-add(collarHigh, "Collar_High");
-
+// Black cap radii are directly normalized from rows 345→145 of the supplied photo.
 const capProfile = [
-  [0.305, 1.105],
-  [0.345, 1.120],
-  [0.375, 1.160],
-  [0.395, 1.205],
-  [0.400, 1.260],
-  [0.382, 1.305],
-  [0.414, 1.350],
-  [0.422, 1.405],
-  [0.405, 1.465],
-  [0.374, 1.505],
-  [0.390, 1.550],
-  [0.382, 1.595],
-  [0.345, 1.635],
-  [0.315, 1.650],
+  [0.3634, 1.1000],
+  [0.3735, 1.1275],
+  [0.3848, 1.1687],
+  [0.3835, 1.2100],
+  [0.3974, 1.2512],
+  [0.4162, 1.2925],
+  [0.4200, 1.3337],
+  [0.4137, 1.3750],
+  [0.4049, 1.4162],
+  [0.4024, 1.4575],
+  [0.3823, 1.4987],
+  [0.3785, 1.5400],
+  [0.3596, 1.5812],
+  [0.3420, 1.6225],
+  [0.3207, 1.6500],
 ].map(([radius, y]) => new Vector2(radius, y));
 
 add(new Mesh(new LatheGeometry(capProfile, 72), capMaterial), "Cap_Black_Rippled");
@@ -270,7 +292,7 @@ scene.userData = {
   model: "WAVE Amber Touch 60ml",
   format: "GLB",
   source: "front reference supplied by brand owner",
-  geometry: "front silhouette traced from reference; depth inferred for web prototype",
+  geometry: "front body/cap silhouette and label UVs measured from the 1536px reference; depth inferred for web prototype",
 };
 
 const exporter = new GLTFExporter();
