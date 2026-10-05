@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: pending CI for no-guess bottle mode.
+Latest validated prototype: commit `bbe8477` — CI passed install, TypeScript and production build; Vercel production is READY.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: pending no-guess validation.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `bbe8477`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -36,7 +36,7 @@ Status:
 - [x] **T-039 — Historical pixel-traced GLB correction (superseded by T-043)**: replace hand-estimated bottle widths with measurements taken directly from the supplied 1536×1536 reference rows; correct label position/UV crop and trace the cap radius profile from the source image.\n- [x] **T-040 — Historical GLB v2 rebuild (superseded by T-043)**: redo the GLB again from the latest reference using one global image-to-model scale, measured shoulder/body taper, a smaller photo-matched cap profile, full-height label placement and surface-following label depth. Validated in `5a24672`.
 
 - [x] **T-041 — Mobile screenshot correction**: fix the vertically inverted label texture, pull the mobile camera back so the bottle no longer fills the viewport, lower the rail slightly, and reduce hero-title overlap. Validated in `d39040f`.\n\n- [x] **T-042 — Screenshot-driven bottle material correction**: extend the dark liquid through the lower body, remove the oversized pale base effect, make the glass clearer, darken the liquid and brighten the gold hardware to better match the real bottle. Validated in `5532d12`.\n\n- [x] **T-043 — No-guess bottle renderer**: retire the inferred GLB runtime, remove GLB generation from asset preparation, render the exact supplied front bottle reference on a cropped/chroma-keyed 3D plane, preserve the label text, and constrain Y-rotation so no unseen side geometry is fabricated.
-- [ ] **T-044 — No-guess live QA**: confirm CI, Vercel deployment, and mobile visual quality for the exact-front renderer.
+- [~] **T-044 — No-guess live QA**: CI and Vercel production validation are complete for `bbe8477`; final mobile visual approval awaits the owner's screenshot.
 
 ## Rail interaction
 
