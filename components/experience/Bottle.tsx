@@ -83,7 +83,7 @@ export function Bottle({
 
   const model = useMemo(() => {
     referenceTexture.colorSpace = THREE.SRGBColorSpace;
-    referenceTexture.flipY = false;
+    referenceTexture.flipY = true;
     referenceTexture.anisotropy = 4;
     referenceTexture.needsUpdate = true;
 
