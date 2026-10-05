@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: commit `7091b46` — CI passed install, TypeScript and production build; Vercel production is READY.
+Latest validated prototype: commit `55f548c` — CI passed install, TypeScript and production build; Vercel production is READY.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `7091b46`.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `55f548c`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -38,7 +38,7 @@ Status:
 - [x] **T-041 — Mobile screenshot correction**: fix the vertically inverted label texture, pull the mobile camera back so the bottle no longer fills the viewport, lower the rail slightly, and reduce hero-title overlap. Validated in `d39040f`.\n\n- [x] **T-042 — Screenshot-driven bottle material correction**: extend the dark liquid through the lower body, remove the oversized pale base effect, make the glass clearer, darken the liquid and brighten the gold hardware to better match the real bottle. Validated in `5532d12`.\n\n- [x] **T-043 — No-guess bottle renderer**: retire the inferred GLB runtime, remove GLB generation from asset preparation, render the exact supplied front bottle reference on a cropped/chroma-keyed 3D plane, preserve the label text, and constrain Y-rotation so no unseen side geometry is fabricated.
 - [x] **T-044 — No-guess live QA baseline**: CI and Vercel production validation completed for the reference-locked renderer; screenshot review exposed runtime keying artifacts, leading to T-045.
 
-- [x] **T-046 — Remove striped alpha artifact**: replace connectivity/flood-fill background removal with one continuous traced silhouette mask, output PNG instead of WebP for stable iOS alpha, and keep the photographic bottle intact inside the silhouette. Validated in `7091b46`, live on Vercel.\n\n## Rail interaction
+- [x] **T-046 — Remove striped alpha artifact**: replace connectivity/flood-fill background removal with one continuous traced silhouette mask, output PNG instead of WebP for stable iOS alpha, and keep the photographic bottle intact inside the silhouette. Validated in `7091b46`, live on Vercel.\n\n- [x] **T-047 — Retina bottle sharpness pass**: render the WebGL canvas at DPR 2–3, disable texture mipmaps for the bottle, keep linear full-resolution sampling, raise anisotropy, and generate a 2× Lanczos/sharpened transparent PNG for high-density mobile displays. Validated in `55f548c`, live on Vercel.\n\n## Rail interaction
 
 - [x] **T-012 — Horizontal rail baseline**: render seven bottles across the rail.
 - [x] **T-013 — Pointer/touch drag**: allow dragging/swiping through the collection.
