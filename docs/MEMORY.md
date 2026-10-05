@@ -9,78 +9,74 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling f
 ## Confirmed product direction
 
 - Brand: WAVE Fragrances.
-- Repository: AM-naguib/Try-threejs.
-- Homepage scope: full homepage, not only an isolated hero demo.
-- Prototype catalog: 7 test instances of Amber Touch.
-- Amber Touch reference:
-  - WAVE
-  - Amber Touch
-  - 60ml
-  - Extrait De Parfum
-- Current visual language remains black + gold.
-- Both desktop and mobile are equally important.
-- Commerce integration is not required in the first pass.
-- Owner explicitly requires **no guessing** for bottle geometry or hidden dimensions.
+- Repository: `AM-naguib/Try-threejs`.
+- Homepage scope: full homepage.
+- Prototype catalog: 7 repeated Amber Touch instances.
+- Amber Touch: WAVE / Amber Touch / 60ml / Extrait De Parfum.
+- Current visual language: black + gold.
+- Desktop and mobile are both important.
+- Commerce integration is deferred.
 
-## Confirmed interaction direction
+## Canonical bottle asset
 
-- Horizontal physical-feeling bottle rail.
-- Drag/swipe with velocity-aware magnetic snap.
-- Edge overscroll resistance.
-- Subtle secondary swing.
-- Wheel/trackpad navigation.
-- Center bottle active state.
-- Selected bottle advances while camera/UI choreography emphasizes it.
+The owner approved the isolated Amber Touch bottle visual.
 
-## Current bottle strategy
+**Canonical project path:**
 
-The previous inferred GLB approach is retired.
+`public/products/amber-touch-approved.webp`
 
-Reason:
-- only a straight-on product photograph is authoritative;
-- depth, side surfaces, hidden glass volume and real cap depth cannot be recovered exactly from that single view;
-- previous GLB attempts looked visually wrong because those unseen properties had to be invented.
+This project file is now the source of truth. Whenever the implementation needs the Amber Touch image, use this file. Do not regenerate the bottle from memory or an image prompt, and do not run another masking/reconstruction pipeline unless the owner explicitly approves a replacement.
 
-Current implementation:
-- the exact supplied front photograph is decoded during the asset-preparation step;
-- Sharp crops the approved bottle bounds and applies one continuous traced silhouette mask, so transparent glass/highlights inside the bottle are never mistaken for background;
-- the build outputs `public/reference/amber-touch-cutout.png` with stable alpha for iOS/WebGL;
-- Bottle.tsx renders that PNG with a standard `MeshBasicMaterial`, so there is no runtime chroma-key shader and no flood-fill striping;
-- no bottle part is redrawn and no unseen 3D dimensions are invented;
-- bottle Y rotation is intentionally kept extremely small.
+## Current interaction strategy
+
+The earlier 3D/GLB/WebGL experiments are retired for this homepage interaction.
+
+The current solution is deliberately simple:
+
+- normal DOM `<img>` bottle;
+- seven repeated instances;
+- horizontal drag/swipe;
+- velocity-aware magnetic snap;
+- edge resistance;
+- subtle bottle tilt/swing;
+- wheel/trackpad navigation;
+- centered active state;
+- selected bottle moves/scales forward while the others recede;
+- CSS/DOM presentation instead of canvas rendering.
+
+This matches the actual goal: the bottle needs to feel interactive and movable, not be a freely rotatable 3D object.
 
 ## Technical foundation
 
 - Next.js 16.3.8
 - React / React DOM 19.3.0
-- React Three Fiber 9.8.1
-- Drei 10.7.9
-- Three.js 0.186.0
-- GSAP 3.15.0
 - TypeScript strict mode
-- Static export / Vercel preview
+- CSS transforms + pointer/touch events
+- Vercel production deployment
 
-## Current repository state
+No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is required by the current implementation.
 
-- Project docs and task ledger are present.
-- Seven Amber Touch entries remain data-driven.
-- Rail physics, secondary motion, selection transition and responsive homepage shell remain implemented.
-- The inferred GLB generator was removed from scripts/prepare-assets.mjs.
-- Bottle rendering was switched from useGLTF to exact-reference useTexture rendering.
-- The original owner-supplied front reference remains the visual source of truth.
+## Repository state
 
-## True 3D blocker
-
-True production 3D now intentionally waits for measured depth/side information, supplier CAD/3D files, or a scan. This does not block the current exact-front prototype.
+- `components/experience/PerfumeExperience.tsx` is the DOM rail implementation.
+- `public/products/amber-touch-approved.webp` is the approved product asset.
+- The old `Bottle.tsx` Three.js renderer is removed.
+- The old asset-generation script is removed.
+- The seven products remain data-driven through `lib/fragrances.ts`.
 
 ## Validation
 
-Commit `55f548c` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
+Commit `18bd11d` added the approved canonical product asset.
 
-## Retina sharpness
+GitHub Actions run #74 passed:
+- dependency install;
+- TypeScript validation;
+- production build.
 
-The mobile bottle looked soft after alpha artifacts were fixed. The renderer now uses DPR 2–3, bottle texture mipmaps are disabled, anisotropy is increased, and the generated PNG is 2× upscaled with Lanczos + mild sharpening for Retina screens.
+Vercel production deployment for the same commit is READY and mapped to:
+
+`https://try-threejs-nu.vercel.app`
 
 ## Next step
 
-Owner reviews the Retina sharpness pass on mobile. If the bottle is now crisp enough, continue composition and interaction polish.
+Visually review the live DOM rail with the approved asset on mobile and desktop, then tune only composition/interaction (spacing, size, swing, snap, selected-state choreography) without altering the approved bottle image.
