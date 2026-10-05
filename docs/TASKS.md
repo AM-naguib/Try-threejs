@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: commit `5532d12` — GitHub Actions CI run #36 passed install, TypeScript and production build.
+Latest validated prototype: pending CI for no-guess bottle mode.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `5532d12`.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: pending no-guess validation.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -31,11 +31,14 @@ Status:
 - [x] **T-010 — Bottle fidelity pass**: refine silhouette, glass edges, cap waves, refraction/highlights and proportions against the supplied photo. Revalidated with the corrective pass in `9aa99be`.
 - [~] **T-011 — Production 3D optimization**: GLB geometry is shared across all seven clones and common PBR materials are reused; final GPU/draw-call profiling remains.
 
-- [x] **T-038 — Real GLB pipeline**: move the bottle out of `Bottle.tsx` procedural geometry and generate a true `public/models/amber-touch.glb` asset during dev/build. Load it with `useGLTF` and map the real supplied label area from the source product photo.
+- [x] **T-038 — Historical GLB pipeline (superseded by T-043)**: move the bottle out of `Bottle.tsx` procedural geometry and generate a true `public/models/amber-touch.glb` asset during dev/build. Load it with `useGLTF` and map the real supplied label area from the source product photo.
 
-- [x] **T-039 — Pixel-traced bottle correction**: replace hand-estimated bottle widths with measurements taken directly from the supplied 1536×1536 reference rows; correct label position/UV crop and trace the cap radius profile from the source image.\n- [x] **T-040 — GLB v2 proportion rebuild**: redo the GLB again from the latest reference using one global image-to-model scale, measured shoulder/body taper, a smaller photo-matched cap profile, full-height label placement and surface-following label depth. Validated in `5a24672`.
+- [x] **T-039 — Historical pixel-traced GLB correction (superseded by T-043)**: replace hand-estimated bottle widths with measurements taken directly from the supplied 1536×1536 reference rows; correct label position/UV crop and trace the cap radius profile from the source image.\n- [x] **T-040 — Historical GLB v2 rebuild (superseded by T-043)**: redo the GLB again from the latest reference using one global image-to-model scale, measured shoulder/body taper, a smaller photo-matched cap profile, full-height label placement and surface-following label depth. Validated in `5a24672`.
 
-- [x] **T-041 — Mobile screenshot correction**: fix the vertically inverted label texture, pull the mobile camera back so the bottle no longer fills the viewport, lower the rail slightly, and reduce hero-title overlap. Validated in `d39040f`.\n\n- [x] **T-042 — Screenshot-driven bottle material correction**: extend the dark liquid through the lower body, remove the oversized pale base effect, make the glass clearer, darken the liquid and brighten the gold hardware to better match the real bottle. Validated in `5532d12`.\n\n## Rail interaction
+- [x] **T-041 — Mobile screenshot correction**: fix the vertically inverted label texture, pull the mobile camera back so the bottle no longer fills the viewport, lower the rail slightly, and reduce hero-title overlap. Validated in `d39040f`.\n\n- [x] **T-042 — Screenshot-driven bottle material correction**: extend the dark liquid through the lower body, remove the oversized pale base effect, make the glass clearer, darken the liquid and brighten the gold hardware to better match the real bottle. Validated in `5532d12`.\n\n- [x] **T-043 — No-guess bottle renderer**: retire the inferred GLB runtime, remove GLB generation from asset preparation, render the exact supplied front bottle reference on a cropped/chroma-keyed 3D plane, preserve the label text, and constrain Y-rotation so no unseen side geometry is fabricated.
+- [ ] **T-044 — No-guess live QA**: confirm CI, Vercel deployment, and mobile visual quality for the exact-front renderer.
+
+## Rail interaction
 
 - [x] **T-012 — Horizontal rail baseline**: render seven bottles across the rail.
 - [x] **T-013 — Pointer/touch drag**: allow dragging/swiping through the collection.
