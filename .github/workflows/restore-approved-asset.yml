@@ -1,0 +1,61 @@
+name: Restore approved Amber Touch asset
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "assets/products/amber-touch-approved.b64/**"
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild and verify approved asset
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          dir="assets/products/amber-touch-approved.b64"
+          count="$(find "$dir" -maxdepth 1 -type f -name 'part-*.txt' | wc -l | tr -d ' ')"
+
+          if [ "$count" -ne 22 ]; then
+            echo "Waiting for all 22 chunks; currently have $count."
+            exit 0
+          fi
+
+          mkdir -p public/products
+          cat "$dir"/part-*.txt | tr -d '\n\r ' | base64 -d > public/products/amber-touch-approved.webp
+
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          p = Path("public/products/amber-touch-approved.webp")
+          b = p.read_bytes()
+          assert b[:4] == b"RIFF", b[:4]
+          assert b[8:12] == b"WEBP", b[8:12]
+          declared = int.from_bytes(b[4:8], "little") + 8
+          assert len(b) == 196368, (len(b), declared)
+          assert declared == len(b), (len(b), declared)
+          digest = hashlib.sha256(b).hexdigest()
+          assert digest == "3a9d629abe3dc974109256e5623891be35cdbb06cb1984eb43e4c92468dcf94b", digest
+          print("Verified approved asset:", len(b), digest)
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add public/products/amber-touch-approved.webp
+          git rm -r "$dir"
+          git rm .github/workflows/restore-approved-asset.yml
+
+          git commit -m "Restore approved Amber Touch product asset"
+          git push
