@@ -8,6 +8,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   CylinderGeometry,
+  LatheGeometry,
   Vector2,
   DoubleSide,
 } from "three";
