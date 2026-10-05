@@ -22,7 +22,7 @@ This file is mandatory reading for every coding/design agent working in this rep
 - Keep visual/interaction logic modular so assets, bottle models, copy and products can be swapped later.
 - Avoid introducing dependencies without a clear reason.
 - Do not fabricate product facts, prices, notes or brand copy that the owner has not confirmed.
-- The supplied Amber Touch image is sufficient reference for iterative procedural 3D work; exact CAD/dimensions are not a blocker for the current prototype.
+- The supplied Amber Touch image is the current visual authority. The bottle is now delivered to the app as an actual generated GLB asset at `public/models/amber-touch.glb`; do not replace it with inline procedural JSX geometry.
 
 ## Mandatory documentation update after every meaningful change
 
@@ -41,4 +41,4 @@ The experience is a full WAVE homepage built around an interactive perfume selec
 
 ## Reference bottle
 
-The supplied reference is WAVE **Amber Touch**, 60ml, Extrait De Parfum. A reference image is stored under `assets/reference/`. For the current interaction prototype, render this same bottle seven times.
+The supplied reference is WAVE **Amber Touch**, 60ml, Extrait De Parfum. A reference image is stored under `assets/reference/`. For the current interaction prototype, render the same generated Amber Touch GLB seven times.

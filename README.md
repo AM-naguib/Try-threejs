@@ -5,8 +5,9 @@ A 3D, animation-led homepage for **WAVE Fragrances** built around a horizontal f
 ## Current prototype
 
 - seven Amber Touch test bottles
-- procedural true-3D bottle built from the supplied reference photo
-- shared geometry/materials for the repeated test bottles
+- generated GLB bottle asset built from the supplied reference photo
+- real supplied label artwork mapped onto the GLB front label mesh
+- shared GLB geometry/materials for the repeated test bottles
 - drag/swipe with velocity-aware magnetic snapping
 - edge resistance and secondary bottle swing
 - wheel/trackpad navigation
@@ -65,4 +66,4 @@ See `assets/reference/README.md` for decode instructions.
 
 ## Current status
 
-Commit `9aa99be` is the current validated bottle-correction build and passes install, TypeScript and production build in GitHub Actions. Live prototype: `https://try-threejs-nu.vercel.app`.
+Commit `516d763` is the current validated GLB bottle build and passes install, TypeScript and production build in GitHub Actions. Live prototype: `https://try-threejs-nu.vercel.app`.

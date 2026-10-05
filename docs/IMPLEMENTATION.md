@@ -8,7 +8,7 @@ _Last updated: 2026-10-05_
 - React
 - React Three Fiber
 - Three.js
-- Drei environment helpers
+- Drei environment/model helpers
 - GSAP for controlled transitions
 - TypeScript in strict mode
 
@@ -29,17 +29,19 @@ The 3D rail is the primary homepage hero/product-discovery system rather than an
 9. Other bottles recede and scene/UI emphasis shifts to the selection.
 10. Detail UI can reveal real notes/inspiration when those fields are later populated.
 
-### 3D strategy
+### 3D asset strategy
 
-The bottle is built procedurally in Three.js from the supplied Amber Touch reference image:
-- refined beveled/extruded glass silhouette;
-- inset dark liquid volume;
-- thicker glass foot/base;
-- metallic gold neck/collar and top hardware;
-- stacked black cap bands approximating the photographed sculpted cap;
-- generated black/gold Amber Touch label texture.
+The Amber Touch bottle is now a **real GLB project asset**, not inline procedural JSX geometry.
 
-Shared bottle geometry and core materials are reused across all seven bottles. The label texture is cached by product name.
+`scripts/prepare-assets.mjs` runs automatically before dev/build and:
+- decodes the supplied reference into `public/reference/amber-touch.webp`;
+- generates `public/models/amber-touch.glb`;
+- builds the GLB from a lofted rounded-rectangular bottle body, inner liquid, heavy glass foot, gold neck/collars, continuous lathed rippled black cap and gold top hardware;
+- stores a dedicated `Label_Front` mesh with UVs pointing at the actual label region in the supplied 1280×1280 photo.
+
+`Bottle.tsx` loads the GLB with `useGLTF`, clones the same model for all seven products, reapplies web-friendly physical glass/liquid/gold materials, and maps the real supplied reference image onto `Label_Front`.
+
+This keeps the bottle in the format expected by the Three.js project while preserving easy replacement with a later artist-made GLB.
 
 ### Lighting
 
@@ -48,8 +50,8 @@ The scene uses a small local environment map generated with Drei lightformers pl
 ## Performance rules
 
 - Cap DPR.
-- Reuse geometry/materials.
-- Cache repeated label textures.
+- Reuse the same GLB geometry across the seven clones.
+- Reuse common material instances where possible.
 - Avoid post-processing until profiling supports it.
 - Keep environment resolution modest.
 - Respect reduced-motion preferences.
@@ -57,7 +59,7 @@ The scene uses a small local environment map generated with Drei lightformers pl
 
 ## Static hosting
 
-`next.config.ts` enables static export. GitHub Pages workflow exists but is manual-only until repository Pages is explicitly enabled or another authorized host is connected.
+`next.config.ts` uses static export. Vercel is the active public preview target.
 
 ## Execution tracking
 

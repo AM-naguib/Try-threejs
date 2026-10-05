@@ -41,9 +41,10 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 - Three.js through React Three Fiber.
 - Drei for environment lighting helpers.
 - GSAP for controlled object transitions.
-- Real procedural 3D geometry/materials rather than a flat cutout.
-- Shared bottle geometry/material resources are reused across the seven test instances.
-- Label canvas textures are cached instead of regenerated per bottle.
+- The bottle is now a real GLB asset generated at `public/models/amber-touch.glb` before dev/build.
+- `Bottle.tsx` loads the GLB through `useGLTF`; inline bottle geometry was removed.
+- The seven bottles clone the same GLB geometry and reuse common PBR materials.
+- The front label uses UV coordinates mapped directly to the supplied Amber Touch product photo, so the visible label is the real reference artwork rather than a redrawn approximation.
 - Static export is enabled so the prototype can be hosted on static hosting.
 - DPR remains capped for performance.
 
@@ -61,14 +62,14 @@ Current pinned foundation:
 - `docs/TASKS.md` is the required execution checklist.
 - Amber Touch reference asset is stored in `assets/reference/`.
 - The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle model was corrected again against the latest supplied front photo: wider/faceted shoulders, narrower foot, larger label area, corrected neck ratio and a continuous lathed rippled cap replace the previous stacked-cylinder approximation.
+- Bottle geometry is generated as a standalone GLB from the latest supplied front photo proportions: broad/faceted shoulders, tapered lower body, heavy glass foot, corrected neck ratio and a continuous rippled cap profile.
 - Shared geometry/materials reduce repeated 3D resource creation.
 - Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
 - Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
 - Studio environment lightformers improve glass/gold reflections without remote HDR assets.
 - Background glow responds to rail position and interaction energy.
-- Commit `9aa99be` passed GitHub Actions CI run #12: dependency install, TypeScript validation and production build all succeeded.
-- Vercel production deployment for commit `9aa99be` is READY and the production alias remains `https://try-threejs-nu.vercel.app`.
+- Commit `516d763` passed GitHub Actions CI run #18: dependency install, TypeScript validation and production build all succeeded, including GLB generation in the prebuild step.
+- Vercel production deployment for commit `516d763` is READY and mapped to `https://try-threejs-nu.vercel.app`.
 
 ## Prototype blockers
 
@@ -76,4 +77,4 @@ No implementation blocker is active. The latest bottle correction is live and re
 
 ## Next step
 
-Get visual approval on the corrected bottle silhouette from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.
+Get visual approval on the new GLB bottle silhouette and real-photo label mapping from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.

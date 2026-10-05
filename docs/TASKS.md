@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: commit `9aa99be` — GitHub Actions CI run #12 passed install, TypeScript and production build.
+Latest validated prototype: commit `516d763` — GitHub Actions CI run #18 passed install, TypeScript and production build.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `9aa99be`.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `516d763`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -29,7 +29,9 @@ Status:
 - [x] **T-008 — Reference-style materials**: glass body, dark liquid, black sculpted cap, gold collar/top and black/gold front label.
 - [x] **T-009 — Procedural Amber Touch label**: create a recognizable WAVE / Amber Touch test label inside the 3D scene without inventing alternate product identities.
 - [x] **T-010 — Bottle fidelity pass**: refine silhouette, glass edges, cap waves, refraction/highlights and proportions against the supplied photo. Revalidated with the corrective pass in `9aa99be`.
-- [~] **T-011 — Production 3D optimization**: shared geometry/materials and cached label textures are implemented; final GPU/draw-call profiling remains.
+- [~] **T-011 — Production 3D optimization**: GLB geometry is shared across all seven clones and common PBR materials are reused; final GPU/draw-call profiling remains.
+
+- [x] **T-038 — Real GLB pipeline**: move the bottle out of `Bottle.tsx` procedural geometry and generate a true `public/models/amber-touch.glb` asset during dev/build. Load it with `useGLTF` and map the real supplied label area from the source product photo.
 
 ## Rail interaction
 

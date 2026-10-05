@@ -72,3 +72,6 @@ Maintain `docs/TASKS.md` as the project execution checklist. Every completed tas
 
 ### D-023 — Front product photo is the bottle-shape authority
 When the procedural bottle disagrees with the supplied Amber Touch front photo, prioritize the photo's visible proportions: broad/faceted shoulders, tapered body/foot, larger front label coverage, neck ratio and the continuous rippled black cap silhouette. Prototype geometry should be corrected against that reference before decorative polish.
+
+### D-024 — Bottle must be a GLB project asset
+The bottle should no longer be modeled inline inside the React component. Generate and serve it as `public/models/amber-touch.glb`, load it with `useGLTF`, and reuse that asset for all seven prototype instances. Use the real supplied product photo for the label texture mapping instead of redrawing the label in Canvas.
