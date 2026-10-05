@@ -1,23 +1,26 @@
 # WAVE Interactive Fragrance Homepage
 
-A 3D, animation-led homepage for **WAVE Fragrances** built around a horizontal fragrance rail.
+A premium, animation-led homepage for **WAVE Fragrances** built around a horizontal fragrance rail.
 
 ## Current prototype
 
 - seven Amber Touch test bottles
-- generated GLB v2 bottle asset rebuilt from measured proportions in the supplied reference photo
-- real supplied label artwork mapped onto the GLB front label mesh
-- shared GLB geometry/materials for the repeated test bottles
+- exact owner-supplied front bottle reference used directly in the experience
+- no inferred bottle depth or hidden geometry
+- 3D rail movement with a reference-locked 2.5D product plane
 - drag/swipe with velocity-aware magnetic snapping
-- edge resistance and secondary bottle swing
+- edge resistance and secondary swing
 - wheel/trackpad navigation
 - cinematic selected-bottle + camera transition
-- studio-style glass/gold lighting
 - black + gold WAVE art direction
 - desktop and mobile responsive baseline
 - static export ready for public hosting
 
-The repeated Amber Touch bottles are intentional prototype data. The underlying catalog remains data-driven for later replacement by the real seven fragrances.
+## Why the bottle is currently 2.5D
+
+Only the straight-on bottle photograph is authoritative. Building a true GLB from that image alone requires inventing depth, side surfaces and hidden glass geometry. The owner explicitly requested no guessing, so the current bottle visual is the exact supplied photograph with the white background removed at render time.
+
+A true 3D GLB returns when measured dimensions, side/top/back references, supplier CAD/model or a scan is available.
 
 ## Stack
 
@@ -30,40 +33,35 @@ The repeated Amber Touch bottles are intentional prototype data. The underlying 
 
 ## Local start
 
-```bash
 npm install
 npm run dev
-```
 
 Validate:
 
-```bash
 npm run typecheck
 npm run build
-```
 
 ## Project documentation
 
 Before changing the implementation, read in this order:
 
-1. `AGENTS.md`
-2. `docs/MEMORY.md`
-3. `docs/DECISIONS.md`
-4. `docs/QUESTIONS.md`
-5. `docs/TASKS.md`
-6. `docs/IMPLEMENTATION.md`
-
-After meaningful changes, update the task checklist and memory/decisions/questions in the same work cycle.
+1. AGENTS.md
+2. docs/MEMORY.md
+3. docs/DECISIONS.md
+4. docs/QUESTIONS.md
+5. docs/TASKS.md
+6. docs/IMPLEMENTATION.md
 
 ## Product reference
 
 The supplied bottle reference is **WAVE Amber Touch — 60ml — Extrait De Parfum**.
 
 Reference source:
-`assets/reference/amber-touch-reference.webp.b64`
+assets/reference/amber-touch-reference.webp.b64
 
-See `assets/reference/README.md` for decode instructions.
+The build decodes it to:
+public/reference/amber-touch.webp
 
-## Current status
+## Live preview
 
-Commit `5a24672` is the current validated GLB v2 bottle build and passes install, TypeScript and production build in GitHub Actions. Live prototype: `https://try-threejs-nu.vercel.app`.
+https://try-threejs-nu.vercel.app
