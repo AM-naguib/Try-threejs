@@ -249,7 +249,7 @@ export function PerfumeExperience() {
       <Canvas
         className="experience-canvas"
         camera={{ position: [0, 0.42, 5.62], fov: 38 }}
-        dpr={[1, 1.55]}
+        dpr={[2, 3]}
         gl={{
           antialias: true,
           alpha: true,
