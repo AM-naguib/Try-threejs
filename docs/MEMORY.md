@@ -26,24 +26,26 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 
 - Horizontal physical-feeling bottle rail.
 - Drag/swipe follows the user's motion.
-- Release magnetically snaps to the nearest bottle.
+- Velocity influences the projected snap target.
+- Edge overscroll is resisted instead of hard-stopping.
+- Bottles swing/twist subtly during movement and settle afterward.
 - Wheel/trackpad navigation is supported on desktop.
 - Center bottle becomes active.
-- Clicking the active bottle moves it toward the camera and pushes the rest back.
-- Detail architecture supports later notes/product information.
-- The experience may later evolve into a dedicated visual world per selected fragrance.
+- Clicking the active bottle moves it toward the camera while the camera also pushes in and surrounding UI/scene recedes.
+- Detail architecture supports approved inspiration/notes when real data is supplied.
 
 ## Technical direction
 
 - Next.js App Router.
 - React + TypeScript.
 - Three.js through React Three Fiber.
-- Drei where useful.
-- GSAP for controlled animation.
+- Drei for environment lighting helpers.
+- GSAP for controlled object transitions.
 - Real procedural 3D geometry/materials rather than a flat cutout.
-- The supplied reference image is sufficient for prototype 3D work; exact dimensions/GLB are not currently required.
-- No remote HDR dependency in the initial build.
-- DPR is capped and reduced-motion support is part of the base implementation.
+- Shared bottle geometry/material resources are reused across the seven test instances.
+- Label canvas textures are cached instead of regenerated per bottle.
+- Static export is enabled so the prototype can be hosted on static hosting.
+- DPR remains capped for performance.
 
 Current pinned foundation:
 - Next.js 16.3.8
@@ -56,19 +58,22 @@ Current pinned foundation:
 ## Current repository state
 
 - Agent rules, memory, decisions, questions, implementation plan and task ledger are present.
-- `docs/TASKS.md` is the required execution checklist and completed work is marked there.
+- `docs/TASKS.md` is the required execution checklist.
 - Amber Touch reference asset is stored in `assets/reference/`.
-- Next.js homepage scaffold is present.
 - The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle model v1 is built from the supplied photo as a procedural beveled glass silhouette with dark liquid, gold hardware, sculpted black cap bands and a generated Amber Touch front label.
-- Rail supports pointer drag/swipe, snap, wheel navigation, active-product state and selected-bottle forward animation.
-- Black/gold responsive homepage shell is implemented.
-- Latest code prototype commit `9773ed8` passed GitHub Actions CI run #8: dependency install, TypeScript validation and production build all succeeded.
+- Bottle model has a refined beveled glass silhouette, dark liquid, thicker glass base, sculpted cap bands, metallic gold hardware and generated Amber Touch label.
+- Shared geometry/materials reduce repeated 3D resource creation.
+- Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
+- Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
+- Studio environment lightformers improve glass/gold reflections without remote HDR assets.
+- Background glow responds to rail position and interaction energy.
+- Commit `932e3e1` passed GitHub Actions CI run #10: dependency install, TypeScript validation and production build all succeeded.
+- A GitHub Pages workflow was prepared, but repository Pages creation failed because the GitHub integration is not permitted to enable Pages automatically.
 
 ## Prototype blockers
 
-None. Continue implementation without waiting for the remaining six product names, exact bottle measurements or external 3D files.
+The code itself is not blocked. The only current blocker for a clean public test URL is hosting authorization.
 
 ## Next step
 
-Follow `docs/TASKS.md` in order of impact. Next targets are T-010 bottle fidelity, T-011 3D optimization, T-018 premium rail physics, T-019 secondary bottle motion, T-023 lighting/reflections and T-020 cinematic selection polish.
+Publish the validated build through an authorized hosting connection, then continue T-027/T-028 and remaining device/performance QA while preserving the same task-ledger workflow.

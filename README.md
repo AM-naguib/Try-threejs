@@ -4,14 +4,17 @@ A 3D, animation-led homepage for **WAVE Fragrances** built around a horizontal f
 
 ## Current prototype
 
-- full homepage foundation, not an isolated demo
-- seven Amber Touch test instances on the rail
+- seven Amber Touch test bottles
 - procedural true-3D bottle built from the supplied reference photo
-- drag/swipe with magnetic snapping
+- shared geometry/materials for the repeated test bottles
+- drag/swipe with velocity-aware magnetic snapping
+- edge resistance and secondary bottle swing
 - wheel/trackpad navigation
-- active bottle detaches toward the camera
-- current WAVE black + gold identity
-- desktop and mobile treated as first-class targets
+- cinematic selected-bottle + camera transition
+- studio-style glass/gold lighting
+- black + gold WAVE art direction
+- desktop and mobile responsive baseline
+- static export ready for public hosting
 
 The repeated Amber Touch bottles are intentional prototype data. The underlying catalog remains data-driven for later replacement by the real seven fragrances.
 
@@ -24,7 +27,7 @@ The repeated Amber Touch bottles are intentional prototype data. The underlying 
 - Drei
 - GSAP
 
-## Start
+## Local start
 
 ```bash
 npm install
@@ -62,4 +65,4 @@ See `assets/reference/README.md` for decode instructions.
 
 ## Current status
 
-The homepage scaffold, seven-bottle prototype data, first procedural 3D bottle model and baseline rail interactions are implemented. Remaining work is tracked explicitly in `docs/TASKS.md`.
+Commit `932e3e1` is the current validated visual/interaction build and passes install, TypeScript and production build in GitHub Actions. Public-host deployment is tracked as T-036 in `docs/TASKS.md`.
