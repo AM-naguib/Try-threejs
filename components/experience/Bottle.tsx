@@ -42,7 +42,9 @@ export function Bottle({
     timeline.to(root.current.scale, { x: target.scale, y: target.scale, z: target.scale }, 0);
     timeline.to(root.current.rotation, { y: target.rotationY }, 0);
 
-    return () => {\n      timeline.kill();\n    };
+    return () => {
+      timeline.kill();
+    };
   }, [active, selected, dimmed]);
 
   return (
