@@ -75,3 +75,10 @@ When the procedural bottle disagrees with the supplied Amber Touch front photo, 
 
 ### D-024 — Bottle must be a GLB project asset
 The bottle should no longer be modeled inline inside the React component. Generate and serve it as `public/models/amber-touch.glb`, load it with `useGLTF`, and reuse that asset for all seven prototype instances. Use the real supplied product photo for the label texture mapping instead of redrawing the label in Canvas.
+
+
+### D-025 — No inferred 3D from a front-only reference
+The owner explicitly requires no guessing. A single front photograph cannot determine bottle depth, side surfaces, hidden glass geometry or physically correct liquid volume. Therefore the current prototype must use the exact supplied front photograph as the bottle's visual asset, cropped and white-background-keyed at runtime. Keep interaction in 3D space, but keep the bottle itself nearly front-facing. Resume a true GLB only when measured dimensions, side/top/back references, CAD, scan or an approved artist-made model exists.
+
+### D-026 — Front-reference fidelity overrides previous prototype GLB
+D-025 supersedes the prototype implementation parts of D-011, D-021 and D-024 where they would force inferred geometry. The final product can still use true 3D, but the current implementation must not manufacture unseen geometry simply to satisfy a format preference.
