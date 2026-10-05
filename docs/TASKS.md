@@ -4,6 +4,8 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
+Latest validated prototype: commit `9773ed8` — GitHub Actions CI run #8 passed install, TypeScript and production build.
+
 Status:
 - `[x]` complete
 - `[ ]` pending
@@ -13,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `9773ed8`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog

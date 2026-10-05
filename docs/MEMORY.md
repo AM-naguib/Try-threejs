@@ -56,15 +56,14 @@ Current pinned foundation:
 ## Current repository state
 
 - Agent rules, memory, decisions, questions, implementation plan and task ledger are present.
-- `docs/TASKS.md` is now the required execution checklist and completed work is marked there.
+- `docs/TASKS.md` is the required execution checklist and completed work is marked there.
 - Amber Touch reference asset is stored in `assets/reference/`.
 - Next.js homepage scaffold is present.
-- The catalog now renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle model v1 has been refined from the supplied photo into a procedural beveled glass silhouette with dark liquid, gold hardware, sculpted black cap bands and a generated Amber Touch front label.
+- The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
+- Bottle model v1 is built from the supplied photo as a procedural beveled glass silhouette with dark liquid, gold hardware, sculpted black cap bands and a generated Amber Touch front label.
 - Rail supports pointer drag/swipe, snap, wheel navigation, active-product state and selected-bottle forward animation.
 - Black/gold responsive homepage shell is implemented.
-- GitHub Actions CI installs dependencies, typechecks and production-builds on every push.
-- Previous CI validation passed install, TypeScript and production build before this refinement.
+- Latest code prototype commit `9773ed8` passed GitHub Actions CI run #8: dependency install, TypeScript validation and production build all succeeded.
 
 ## Prototype blockers
 
@@ -72,4 +71,4 @@ None. Continue implementation without waiting for the remaining six product name
 
 ## Next step
 
-Follow `docs/TASKS.md` in order of impact. Next targets are bottle fidelity/performance, premium rail physics, secondary bottle motion, richer lighting/reflections and cinematic selection polish.
+Follow `docs/TASKS.md` in order of impact. Next targets are T-010 bottle fidelity, T-011 3D optimization, T-018 premium rail physics, T-019 secondary bottle motion, T-023 lighting/reflections and T-020 cinematic selection polish.
