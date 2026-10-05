@@ -24,8 +24,11 @@ Build a premium, animation-led perfume selector inspired by a physical product r
 
 Primary bottle reference supplied by the brand owner: **WAVE — Amber Touch, 60ml, Extrait De Parfum**.
 
-The source image will live under `assets/reference/`.
+The repository contains a compact WebP copy encoded as base64 at:
+`assets/reference/amber-touch-reference.webp.b64`
+
+See `assets/reference/README.md` for the decode command.
 
 ## Status
 
-Project initialized. Implementation starts after the first product/design questions are resolved.
+Project documentation and the first product reference are initialized. Implementation starts after the first product/design questions are resolved.
