@@ -90,3 +90,10 @@ The interactive prototype should use a preprocessed transparent WebP derived fro
 
 ### D-028 — Use a continuous silhouette mask for the bottle cutout
 Do not remove the white background by color connectivity through the bottle image. Transparent glass and bright reflections can connect visually to the studio background and create striped/fragmented alpha on mobile. Use one traced outer silhouette mask and preserve all photographic pixels inside it. Output PNG for predictable alpha in the current iOS/WebGL target.
+
+
+### D-029 — Approved Amber Touch asset is canonical
+The owner approved the isolated Amber Touch image now stored at `public/products/amber-touch-approved.webp`. This file is the source of truth for the current product visual. Agents must reuse the project asset rather than regenerate or reinterpret the bottle from memory.
+
+### D-030 — Current rail uses DOM images, not 3D
+For the current homepage interaction, true 3D is unnecessary. Render the approved bottle as a normal DOM image and create the physical feel with drag/swipe, velocity-aware snapping, CSS translate/scale/rotate, opacity and selected-state choreography. This decision supersedes the current-use portions of D-011, D-017, D-021, D-024, D-025, D-027 and D-028 that required Three.js/WebGL/GLB or asset-generation work for the rail.
