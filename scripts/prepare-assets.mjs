@@ -93,10 +93,21 @@ const maskSvg = Buffer.from(`
 
 const cutoutPath = path.join(publicReference, "amber-touch-cutout.png");
 
+const targetWidth = crop.width * 2;
+const targetHeight = crop.height * 2;
+
 await sharp(sourceBuffer)
   .extract(crop)
   .ensureAlpha()
   .composite([{ input: maskSvg, blend: "dest-in" }])
+  .resize(targetWidth, targetHeight, {
+    kernel: "lanczos3",
+  })
+  .sharpen({
+    sigma: 0.65,
+    m1: 0.8,
+    m2: 1.2,
+  })
   .png({
     compressionLevel: 9,
     adaptiveFiltering: true,
