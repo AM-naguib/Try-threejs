@@ -1,17 +1,18 @@
 # Open Questions
 
-The core interaction and technical direction are confirmed. These are the remaining content/fidelity blockers.
+There are currently **no questions blocking the interaction prototype**.
 
-1. **Seven product names:** Amber Touch is confirmed. What are the names of the other six fragrances?
+The owner confirmed that:
+- the same Amber Touch bottle can be repeated seven times for testing;
+- the procedural 3D bottle should be created/refined from the supplied image;
+- exact physical dimensions and the other six product identities are not required before continuing.
 
-2. **Catalog data:** For each fragrance, provide the approved inspiration, notes, price, size, quantity options and review data that should appear on the homepage.
+## Deferred production inputs
 
-3. **Label artwork:** Please provide the final front-label artwork for all seven fragrances. Vector/PDF/SVG is preferred; high-resolution transparent PNG is acceptable for the prototype.
+These can be collected later when they become relevant to production/final content:
 
-4. **Bottle fidelity:** For an exact production 3D bottle, provide physical dimensions (body width/height/depth, cap dimensions, neck dimensions) or an approved GLB/FBX/CAD/3D scan if one exists.
-
-5. **Brand assets:** Provide the production WAVE logo/wordmark files and any approved typefaces if they are different from the bottle artwork.
-
-6. **Homepage content:** Provide approved brand story, supporting sections, contact/social links and any policy/footer content that should exist below the interactive collection.
-
-7. **Commerce later:** When commerce is connected, which backend/store/cart system should the homepage integrate with?
+1. Real names, labels and catalog data for the other fragrances.
+2. Final production logo/wordmark/typeface assets if different from the current reference.
+3. Exact bottle dimensions or CAD/GLB only if needed for the final fidelity pass.
+4. Approved brand story and supporting homepage copy.
+5. Commerce backend/cart system when checkout integration begins.

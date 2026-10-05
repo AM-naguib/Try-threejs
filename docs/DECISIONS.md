@@ -60,3 +60,12 @@ Use the clothing-rail reference for interaction inspiration, not as a requiremen
 
 ### D-019 — Desktop and mobile parity
 Both desktop and mobile are important launch targets. Design and performance decisions must consider both.
+
+### D-020 — Seven identical bottles for prototype testing
+Until real catalog differences matter, render the same Amber Touch bottle seven times. This is a test-data decision and must not compromise the data-driven architecture.
+
+### D-021 — Reference image is enough for prototype 3D
+Do not block current 3D work on measured dimensions or an external GLB. Build and refine the procedural bottle directly from the supplied Amber Touch image; exact dimensions/assets can improve production fidelity later.
+
+### D-022 — Persistent task ledger
+Maintain `docs/TASKS.md` as the project execution checklist. Every completed task must be marked complete in the same work cycle.

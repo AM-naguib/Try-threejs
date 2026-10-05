@@ -10,30 +10,23 @@ export type Fragrance = {
   labelReady: boolean;
 };
 
-export const fragrances: Fragrance[] = [
-  {
-    id: "amber-touch",
-    name: "Amber Touch",
-    size: "60ml",
-    concentration: "Extrait De Parfum",
-    notes: [],
-    inspiration: null,
-    price: null,
-    reviews: null,
-    labelReady: true,
-  },
-  ...Array.from({ length: 6 }, (_, index) => ({
-    id: `catalog-slot-${index + 2}`,
-    name: null,
-    size: null,
-    concentration: null,
-    notes: [],
-    inspiration: null,
-    price: null,
-    reviews: null,
-    labelReady: false,
-  })),
-];
+const amberTouchPrototype = {
+  name: "Amber Touch",
+  size: "60ml",
+  concentration: "Extrait De Parfum",
+  notes: [],
+  inspiration: null,
+  price: null,
+  reviews: null,
+  labelReady: true,
+} satisfies Omit<Fragrance, "id">;
+
+// Prototype decision: repeat the supplied Amber Touch bottle seven times.
+// Keep unique IDs so the selector remains a real seven-item data-driven rail.
+export const fragrances: Fragrance[] = Array.from({ length: 7 }, (_, index) => ({
+  ...amberTouchPrototype,
+  id: `amber-touch-test-${index + 1}`,
+}));
 
 export const productLabel = (fragrance: Fragrance, index: number) =>
   fragrance.name ?? `Fragrance ${String(index + 1).padStart(2, "0")}`;

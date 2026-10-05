@@ -11,14 +11,14 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 - Brand: WAVE Fragrances.
 - Repository: `AM-naguib/Try-threejs`.
 - Homepage scope: full homepage, not only an isolated hero demo.
-- Version 1 catalog size: 7 fragrances.
-- All fragrances share the same bottle shape; labels/artwork change by product.
-- Amber Touch is the first confirmed reference:
+- Prototype catalog: 7 test instances of the same Amber Touch bottle.
+- Architecture remains data-driven so the seven real fragrances can replace the test entries later.
+- Amber Touch reference:
   - WAVE
   - Amber Touch
   - 60ml
   - Extrait De Parfum
-- Final visual language remains the current black + gold WAVE identity.
+- Current visual language remains black + gold.
 - Both desktop and mobile are equally important.
 - Commerce integration is not required in the first pass.
 
@@ -26,11 +26,11 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 
 - Horizontal physical-feeling bottle rail.
 - Drag/swipe follows the user's motion.
-- Release magnetically snaps to the nearest fragrance.
+- Release magnetically snaps to the nearest bottle.
 - Wheel/trackpad navigation is supported on desktop.
 - Center bottle becomes active.
 - Clicking the active bottle moves it toward the camera and pushes the rest back.
-- Detail architecture supports notes/product information.
+- Detail architecture supports later notes/product information.
 - The experience may later evolve into a dedicated visual world per selected fragrance.
 
 ## Technical direction
@@ -40,7 +40,8 @@ Build the complete WAVE Fragrances homepage around a premium, physical-feeling 3
 - Three.js through React Three Fiber.
 - Drei where useful.
 - GSAP for controlled animation.
-- Real 3D geometry/materials, not a final flat cutout implementation.
+- Real procedural 3D geometry/materials rather than a flat cutout.
+- The supplied reference image is sufficient for prototype 3D work; exact dimensions/GLB are not currently required.
 - No remote HDR dependency in the initial build.
 - DPR is capped and reduced-motion support is part of the base implementation.
 
@@ -54,22 +55,21 @@ Current pinned foundation:
 
 ## Current repository state
 
-- Project documentation and agent rules are initialized.
+- Agent rules, memory, decisions, questions, implementation plan and task ledger are present.
+- `docs/TASKS.md` is now the required execution checklist and completed work is marked there.
 - Amber Touch reference asset is stored in `assets/reference/`.
-- Initial Next.js homepage scaffold is present.
-- A procedural true-3D bottle approximation is implemented so interaction can be developed before an exact GLB exists.
-- Seven data slots exist. Only Amber Touch contains confirmed product data; the other six intentionally remain unnamed.
-- Initial rail supports pointer drag/swipe, magnetic-style snap, wheel navigation, active-product state and selected-bottle forward animation.
-- Black/gold responsive homepage shell and product status UI are implemented.
-- GitHub Actions CI is configured to install dependencies, typecheck and production-build on every push.
-- CI run #6 for commit `3dbd9a3` passed all steps: install, typecheck and production build.
-- CI setup was corrected after its first run exposed a missing-lockfile cache configuration issue.
-- The first TypeScript validation exposed GSAP cleanup typing/formatting; fixes were completed through commit `3dbd9a3`.
+- Next.js homepage scaffold is present.
+- The catalog now renders seven unique data entries that all intentionally represent Amber Touch for testing.
+- Bottle model v1 has been refined from the supplied photo into a procedural beveled glass silhouette with dark liquid, gold hardware, sculpted black cap bands and a generated Amber Touch front label.
+- Rail supports pointer drag/swipe, snap, wheel navigation, active-product state and selected-bottle forward animation.
+- Black/gold responsive homepage shell is implemented.
+- GitHub Actions CI installs dependencies, typechecks and production-builds on every push.
+- Previous CI validation passed install, TypeScript and production build before this refinement.
 
-## Important constraint
+## Prototype blockers
 
-Do not invent the missing six product names, notes, prices, inspiration, reviews or brand story. Wait for approved data/assets.
+None. Continue implementation without waiting for the remaining six product names, exact bottle measurements or external 3D files.
 
 ## Next step
 
-CI now passes install, TypeScript validation and production build. Next: iterate on rail physics and bottle fidelity. In parallel collect the six remaining product names, labels and catalog data listed in `docs/QUESTIONS.md`.
+Follow `docs/TASKS.md` in order of impact. Next targets are bottle fidelity/performance, premium rail physics, secondary bottle motion, richer lighting/reflections and cinematic selection polish.
