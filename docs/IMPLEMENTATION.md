@@ -36,12 +36,12 @@ The Amber Touch bottle is now a **real GLB project asset**, not inline procedura
 `scripts/prepare-assets.mjs` runs automatically before dev/build and:
 - decodes the supplied reference into `public/reference/amber-touch.webp`;
 - generates `public/models/amber-touch.glb`;
-- builds the GLB from a lofted rounded-rectangular bottle body, inner liquid, heavy glass foot, gold neck/collars, continuous lathed rippled black cap and gold top hardware;
-- stores a dedicated `Label_Front` mesh with UVs pointing at the actual label region in the supplied 1280×1280 photo.
+- builds the GLB from a photo-measured lofted rounded-rectangular bottle body, inner liquid, gold neck/collars, continuous lathed rippled black cap and gold top hardware;
+- stores a dedicated `Label_Front` trapezoid with resolution-independent UVs measured from the latest 1536×1536 reference, covering the same near-full-height label area visible in the real bottle.
 
 `Bottle.tsx` loads the GLB with `useGLTF`, clones the same model for all seven products, reapplies web-friendly physical glass/liquid/gold materials, and maps the real supplied reference image onto `Label_Front`.
 
-This keeps the bottle in the format expected by the Three.js project while preserving easy replacement with a later artist-made GLB.
+GLB v2 keeps one global reference-to-model scale for body, neck and cap proportions; only bottle depth is inferred because no side reference exists. This is the format expected by the Three.js project and remains replaceable by a later artist-made GLB.
 
 ### Lighting
 
