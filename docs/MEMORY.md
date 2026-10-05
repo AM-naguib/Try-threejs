@@ -62,14 +62,14 @@ Current pinned foundation:
 - `docs/TASKS.md` is the required execution checklist.
 - Amber Touch reference asset is stored in `assets/reference/`.
 - The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle geometry is generated as a standalone GLB from pixel measurements of the supplied 1536×1536 front photo. Body half-widths are traced across the shoulder/body/base rows, cap radii are traced across the cap rows, and the real label UV window is mapped from the measured label corners.
+- Bottle geometry is generated as a standalone GLB from pixel measurements of the supplied 1536×1536 front photo. GLB v2 uses one global image-to-model scale so the cap/body/neck proportions stay faithful to the reference, traces the shoulder/body taper row-by-row, uses a smaller measured cap radius profile, and maps the real label from its measured corners over nearly the full front panel.
 - Shared geometry/materials reduce repeated 3D resource creation.
 - Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
 - Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
 - Studio environment lightformers improve glass/gold reflections without remote HDR assets.
 - Background glow responds to rail position and interaction energy.
-- Commit `09e69ec` passed GitHub Actions CI run #20: dependency install, TypeScript validation and production build all succeeded, including the pixel-traced GLB generation step.
-- Vercel production deployment for commit `09e69ec` is READY and mapped to `https://try-threejs-nu.vercel.app`.
+- Commit `5a24672` passed GitHub Actions CI run #25: dependency install, TypeScript validation and production build all succeeded, including the rebuilt GLB v2 generation step.
+- Vercel production deployment for commit `5a24672` is READY and mapped to `https://try-threejs-nu.vercel.app`.
 
 ## Prototype blockers
 
@@ -77,4 +77,4 @@ No implementation blocker is active. The latest bottle correction is live and re
 
 ## Next step
 
-Get visual approval on the new GLB bottle silhouette and real-photo label mapping from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.
+Get visual approval on the rebuilt GLB v2 bottle silhouette and real-photo label mapping from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.
