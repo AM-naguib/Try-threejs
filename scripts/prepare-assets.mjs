@@ -8,8 +8,6 @@ import {
   Mesh,
   MeshStandardMaterial,
   CylinderGeometry,
-  BoxGeometry,
-  LatheGeometry,
   Vector2,
   DoubleSide,
 } from "three";
@@ -61,7 +59,31 @@ class NodeFileReader {
 
 globalThis.FileReader ??= NodeFileReader;
 
-function superellipseRing(width, depth, count = 48, power = 4.8) {
+/**
+ * Geometry v2 is photo-traced from the latest supplied straight-on reference.
+ * Pixel measurements below come from the 1536 x 1536 source and are normalized
+ * into model space. The depth is the only inferred dimension because no side
+ * photograph/CAD exists yet.
+ */
+const IMAGE_TOP = 120;
+const IMAGE_BOTTOM = 1235;
+const MODEL_TOP = 1.62;
+const MODEL_BOTTOM = -0.90;
+const MAX_BODY_PIXEL_WIDTH = 553;
+const MAX_BODY_HALF_WIDTH = 0.625;
+
+const xScale = MAX_BODY_HALF_WIDTH / (MAX_BODY_PIXEL_WIDTH / 2);
+const yScale = (MODEL_TOP - MODEL_BOTTOM) / (IMAGE_BOTTOM - IMAGE_TOP);
+
+function modelY(imageY) {
+  return MODEL_TOP - (imageY - IMAGE_TOP) * yScale;
+}
+
+function halfWidth(pixelWidth) {
+  return (pixelWidth / 2) * xScale;
+}
+
+function superellipseRing(width, depth, count = 64, power = 5.4) {
   const ring = [];
   for (let index = 0; index < count; index += 1) {
     const theta = (index / count) * Math.PI * 2;
@@ -74,7 +96,7 @@ function superellipseRing(width, depth, count = 48, power = 4.8) {
   return ring;
 }
 
-function loftBody(slices, count = 48, power = 4.8) {
+function loftBody(slices, count = 64, power = 5.4) {
   const positions = [];
   const indices = [];
 
@@ -96,17 +118,20 @@ function loftBody(slices, count = 48, power = 4.8) {
   }
 
   const bottomCenter = positions.length / 3;
-  positions.push(0, slices[0][0], 0);
-  const topCenter = positions.length / 3;
   positions.push(0, slices.at(-1)[0], 0);
+  const topCenter = positions.length / 3;
+  positions.push(0, slices[0][0], 0);
 
   for (let index = 0; index < count; index += 1) {
     const next = (index + 1) % count;
-    indices.push(bottomCenter, next, index);
 
-    const a = (slices.length - 1) * count + index;
-    const b = (slices.length - 1) * count + next;
-    indices.push(topCenter, a, b);
+    const topA = index;
+    const topB = next;
+    indices.push(topCenter, topB, topA);
+
+    const bottomA = (slices.length - 1) * count + index;
+    const bottomB = (slices.length - 1) * count + next;
+    indices.push(bottomCenter, bottomA, bottomB);
   }
 
   const geometry = new BufferGeometry();
@@ -121,26 +146,31 @@ function loftBody(slices, count = 48, power = 4.8) {
 function labelGeometry() {
   const geometry = new BufferGeometry();
 
-  // Label corners traced from the supplied 1536×1536 product photo.
+  // Label border measured from the supplied reference. The top is wider than
+  // the bottom exactly as it appears on the bottle.
+  const topY = modelY(455);
+  const bottomY = modelY(1112);
+  const z = 0.244;
+
   geometry.setAttribute(
     "position",
     new Float32BufferAttribute(
       [
-        -0.452,  0.755, 0.252,
-         0.452,  0.755, 0.252,
-         0.366, -0.647, 0.252,
-        -0.366, -0.647, 0.252,
+        -0.485, topY, z,
+         0.485, topY, z,
+         0.415, bottomY, z,
+        -0.415, bottomY, z,
       ],
       3,
     ),
   );
 
-  // UVs point directly into the real label in the supplied product photo.
+  // Normalized UVs from the latest 1536px reference; resolution-independent.
   const uv = [
-    536 / 1536, 1 - 451 / 1536,
-    963 / 1536, 1 - 451 / 1536,
-    923 / 1536, 1 - 1115 / 1536,
-    577 / 1536, 1 - 1115 / 1536,
+    527 / 1536, 1 - 462 / 1536,
+    956 / 1536, 1 - 447 / 1536,
+    932 / 1536, 1 - 1112 / 1536,
+    565 / 1536, 1 - 1112 / 1536,
   ];
   geometry.setAttribute("uv", new Float32BufferAttribute(uv, 2));
   geometry.setIndex([0, 2, 1, 0, 3, 2]);
@@ -148,56 +178,88 @@ function labelGeometry() {
   return geometry;
 }
 
-const depthForWidth = (width) => 0.18 + 0.065 * (width / 0.585);
-
-// Front silhouette widths below were measured row-by-row from the supplied photo.
-// y=0.82 maps to image row 420; y=-0.90 maps to image row 1235.
-const tracedBody = [
-  [ 0.8200, 0.2380],
-  [ 0.7989, 0.2920],
-  [ 0.7778, 0.3872],
-  [ 0.7567, 0.4633],
-  [ 0.7356, 0.5300],
-  [ 0.7145, 0.5765],
-  [ 0.6934, 0.5850],
-  [ 0.6512, 0.5829],
-  [ 0.5245, 0.5744],
-  [ 0.3557, 0.5607],
-  [ 0.1869, 0.5480],
-  [ 0.0180, 0.5332],
-  [-0.1508, 0.5194],
-  [-0.3196, 0.5046],
-  [-0.4885, 0.4898],
-  [-0.6573, 0.4771],
-  [-0.7839, 0.4665],
-  [-0.8261, 0.4591],
-  [-0.8472, 0.4549],
-  [-0.8683, 0.4443],
-  [-0.8894, 0.4009],
-  [-0.9000, 0.2846],
+// Width profile measured directly from the product photo. It captures the
+// sharp shoulder flare, long tapered body and heavy rounded base.
+const bodyMeasurements = [
+  [430, 276],
+  [440, 366],
+  [450, 438],
+  [460, 501],
+  [470, 545],
+  [480, 553],
+  [500, 551],
+  [540, 546],
+  [580, 540],
+  [640, 530],
+  [720, 518],
+  [800, 504],
+  [900, 487],
+  [1000, 470],
+  [1100, 454],
+  [1180, 441],
+  [1210, 430],
+  [1230, 420],
 ];
 
-const bodySlices = tracedBody.map(([y, width]) => [
-  y,
-  width,
-  depthForWidth(width),
-]);
+const bodySlices = bodyMeasurements.map(([imageY, pixelWidth]) => {
+  const width = halfWidth(pixelWidth);
+  // Depth is inferred from common 60ml bottle proportions and follows the
+  // front-width taper without exaggerating the side profile.
+  const depth = 0.235 * Math.pow(width / MAX_BODY_HALF_WIDTH, 0.55);
+  return [modelY(imageY), width, depth];
+});
 
 const innerSlices = bodySlices
-  .filter(([y]) => y <= 0.70)
-  .map(([y, width, depth]) => [y + 0.018, width * 0.865, depth * 0.73]);
+  .filter(([y]) => y < modelY(475) && y > modelY(1190))
+  .map(([y, width, depth]) => [
+    y - 0.015,
+    width * 0.86,
+    depth * 0.72,
+  ]);
+
+// The black cap is rotationally symmetric enough for a lathe. Every radius
+// below is measured from the actual front silhouette instead of artist-guessing
+// stacked bands.
+const capMeasurements = [
+  [140, 240],
+  [150, 265],
+  [160, 278],
+  [170, 286],
+  [180, 298],
+  [190, 303],
+  [200, 304],
+  [210, 314],
+  [220, 323],
+  [230, 322],
+  [240, 325],
+  [250, 332],
+  [260, 334],
+  [270, 333],
+  [280, 327],
+  [290, 316],
+  [300, 306],
+  [310, 305],
+  [320, 306],
+  [330, 302],
+  [340, 293],
+  [350, 285],
+];
+
+const capProfile = capMeasurements.map(
+  ([imageY, pixelWidth]) => new Vector2(halfWidth(pixelWidth), modelY(imageY)),
+);
 
 const glassMaterial = new MeshStandardMaterial({
   name: "Glass",
-  color: 0xded8ce,
+  color: 0xe4ddd2,
   transparent: true,
-  opacity: 0.32,
-  roughness: 0.09,
+  opacity: 0.34,
+  roughness: 0.08,
   side: DoubleSide,
 });
 const liquidMaterial = new MeshStandardMaterial({
   name: "DarkLiquid",
-  color: 0x180c05,
+  color: 0x160b05,
   transparent: true,
   opacity: 0.86,
   roughness: 0.22,
@@ -207,13 +269,13 @@ const goldMaterial = new MeshStandardMaterial({
   name: "Gold",
   color: 0xd5a23b,
   metalness: 0.97,
-  roughness: 0.12,
+  roughness: 0.11,
 });
 const goldTopMaterial = new MeshStandardMaterial({
   name: "GoldTop",
   color: 0xf2c55f,
   metalness: 0.99,
-  roughness: 0.07,
+  roughness: 0.065,
 });
 const capMaterial = new MeshStandardMaterial({
   name: "BlackCap",
@@ -229,7 +291,7 @@ const labelMaterial = new MeshStandardMaterial({
 });
 
 const scene = new Scene();
-scene.name = "WAVE_Amber_Touch_60ml";
+scene.name = "WAVE_Amber_Touch_60ml_v2";
 
 function add(mesh, name) {
   mesh.name = name;
@@ -241,58 +303,65 @@ function add(mesh, name) {
 add(new Mesh(loftBody(bodySlices), glassMaterial), "Bottle_Glass");
 add(new Mesh(loftBody(innerSlices), liquidMaterial), "Bottle_Liquid");
 
-// Internal base slab adds the heavy-glass look without changing the traced outer silhouette.
-const foot = new Mesh(new BoxGeometry(0.70, 0.075, 0.31), glassMaterial);
-foot.position.y = -0.815;
-add(foot, "Bottle_Foot");
-
 const label = new Mesh(labelGeometry(), labelMaterial);
 add(label, "Label_Front");
 
-// Gold neck/collar silhouette traced from image rows 420→345.
-const neckProfile = [
-  [0.2380, 0.840],
-  [0.2380, 0.895],
-  [0.2700, 0.950],
-  [0.2980, 1.050],
-  [0.3060, 1.100],
-].map(([radius, y]) => new Vector2(radius, y));
-add(new Mesh(new LatheGeometry(neckProfile, 72), goldMaterial), "Neck_Gold");
+// Gold neck and lower cap ring: dimensions taken from the reference width
+// profile between y=350 and y=425.
+const neckHeight = modelY(380) - modelY(425);
+const neck = new Mesh(
+  new CylinderGeometry(halfWidth(225), halfWidth(225), neckHeight, 72),
+  goldMaterial,
+);
+neck.position.y = (modelY(380) + modelY(425)) / 2;
+add(neck, "Neck_Gold");
 
-// Black cap radii are directly normalized from rows 345→145 of the supplied photo.
-const capProfile = [
-  [0.3634, 1.1000],
-  [0.3735, 1.1275],
-  [0.3848, 1.1687],
-  [0.3835, 1.2100],
-  [0.3974, 1.2512],
-  [0.4162, 1.2925],
-  [0.4200, 1.3337],
-  [0.4137, 1.3750],
-  [0.4049, 1.4162],
-  [0.4024, 1.4575],
-  [0.3823, 1.4987],
-  [0.3785, 1.5400],
-  [0.3596, 1.5812],
-  [0.3420, 1.6225],
-  [0.3207, 1.6500],
-].map(([radius, y]) => new Vector2(radius, y));
+const lowerRingHeight = modelY(350) - modelY(380);
+const lowerRing = new Mesh(
+  new CylinderGeometry(halfWidth(285), halfWidth(279), lowerRingHeight, 72),
+  goldMaterial,
+);
+lowerRing.position.y = (modelY(350) + modelY(380)) / 2;
+add(lowerRing, "Collar_Low");
 
-add(new Mesh(new LatheGeometry(capProfile, 72), capMaterial), "Cap_Black_Rippled");
+const shoulderCollar = new Mesh(
+  new CylinderGeometry(halfWidth(255), halfWidth(225), 0.045, 72),
+  goldMaterial,
+);
+shoulderCollar.position.y = modelY(382);
+add(shoulderCollar, "Collar_High");
 
-const capRim = new Mesh(new CylinderGeometry(0.315, 0.315, 0.045, 72), goldMaterial);
-capRim.position.y = 1.68;
+add(
+  new Mesh(
+    new (await import("three")).LatheGeometry(capProfile, 96),
+    capMaterial,
+  ),
+  "Cap_Black_Rippled",
+);
+
+// Thin gold plate visible at the very top of the cap.
+const topDisc = new Mesh(
+  new CylinderGeometry(halfWidth(278), halfWidth(240), modelY(120) - modelY(140), 96),
+  goldTopMaterial,
+);
+topDisc.position.y = (modelY(120) + modelY(140)) / 2;
+add(topDisc, "Cap_Gold_Top");
+
+// Gold rim immediately under the black cap.
+const capRim = new Mesh(
+  new CylinderGeometry(halfWidth(285), halfWidth(275), 0.045, 96),
+  goldMaterial,
+);
+capRim.position.y = modelY(352);
 add(capRim, "Cap_Gold_Rim");
-
-const capTop = new Mesh(new CylinderGeometry(0.285, 0.285, 0.018, 72), goldTopMaterial);
-capTop.position.y = 1.712;
-add(capTop, "Cap_Gold_Top");
 
 scene.userData = {
   model: "WAVE Amber Touch 60ml",
   format: "GLB",
-  source: "front reference supplied by brand owner",
-  geometry: "front body/cap silhouette and label UVs measured from the 1536px reference; depth inferred for web prototype",
+  version: 2,
+  source: "latest straight-on product reference supplied by brand owner",
+  geometry: "front silhouette measured from photo; depth inferred for web prototype",
+  note: "GLB is the canonical web model asset for the project",
 };
 
 const exporter = new GLTFExporter();
@@ -309,4 +378,4 @@ fs.writeFileSync(
   Buffer.from(arrayBuffer),
 );
 
-console.log("Prepared public/models/amber-touch.glb and public/reference/amber-touch.webp");
+console.log("Prepared corrected v2 public/models/amber-touch.glb and reference texture");
