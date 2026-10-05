@@ -21,13 +21,12 @@ const sourceBuffer = Buffer.from(
 const fullReferencePath = path.join(publicReference, "amber-touch.webp");
 fs.writeFileSync(fullReferencePath, sourceBuffer);
 
-// Crop ratios come from the approved bottle bounds. Calculate them from the
-// real source dimensions so the pipeline is resolution-independent.
 const sourceMeta = await sharp(sourceBuffer).metadata();
 if (!sourceMeta.width || !sourceMeta.height) {
   throw new Error("Could not read Amber Touch reference dimensions");
 }
 
+// Bottle crop bounds measured from the approved reference.
 const cropRatios = {
   left: 429 / 1536,
   top: 84 / 1536,
@@ -47,124 +46,64 @@ const crop = {
   height: Math.max(1, Math.min(sourceMeta.height - top, bottom - top)),
 };
 
-const { data, info } = await sharp(sourceBuffer)
-  .ensureAlpha()
+// Outer silhouette traced from the approved transparent bottle asset.
+// Keeping this as one continuous mask is intentional: transparent glass and
+// bright reflections inside the bottle must never be mistaken for background.
+const silhouette = [
+  [215, 46],
+  [169, 70],
+  [141, 167],
+  [152, 235],
+  [172, 290],
+  [199, 305],
+  [200, 338],
+  [50, 379],
+  [35, 396],
+  [101, 1109],
+  [113, 1137],
+  [148, 1149],
+  [513, 1146],
+  [534, 1134],
+  [541, 1102],
+  [588, 390],
+  [541, 368],
+  [424, 339],
+  [424, 301],
+  [452, 282],
+  [459, 218],
+  [475, 196],
+  [472, 139],
+  [431, 58],
+  [394, 42],
+  [337, 35],
+].map(([x, y]) => [
+  (x / 625) * crop.width,
+  (y / 1188) * crop.height,
+]);
+
+const points = silhouette
+  .map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`)
+  .join(" ");
+
+const maskSvg = Buffer.from(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="${crop.width}" height="${crop.height}" viewBox="0 0 ${crop.width} ${crop.height}">
+    <polygon points="${points}" fill="white"/>
+  </svg>
+`);
+
+const cutoutPath = path.join(publicReference, "amber-touch-cutout.png");
+
+await sharp(sourceBuffer)
   .extract(crop)
-  .raw()
-  .toBuffer({ resolveWithObject: true });
-
-const width = info.width;
-const height = info.height;
-const channels = info.channels;
-const pixelCount = width * height;
-
-// Build a background candidate mask from near-white, low-chroma pixels.
-const candidate = new Uint8Array(pixelCount);
-for (let i = 0; i < pixelCount; i += 1) {
-  const offset = i * channels;
-  const r = data[offset];
-  const g = data[offset + 1];
-  const b = data[offset + 2];
-  const min = Math.min(r, g, b);
-  const max = Math.max(r, g, b);
-  const chroma = max - min;
-
-  candidate[i] = min >= 236 && chroma <= 20 ? 1 : 0;
-}
-
-// Flood-fill only white pixels connected to the crop border. This preserves
-// bright label text and enclosed highlights instead of deleting all whites.
-const background = new Uint8Array(pixelCount);
-const queue = new Uint32Array(pixelCount);
-let head = 0;
-let tail = 0;
-
-function enqueue(index) {
-  if (!candidate[index] || background[index]) return;
-  background[index] = 1;
-  queue[tail] = index;
-  tail += 1;
-}
-
-for (let x = 0; x < width; x += 1) {
-  enqueue(x);
-  enqueue((height - 1) * width + x);
-}
-
-for (let y = 0; y < height; y += 1) {
-  enqueue(y * width);
-  enqueue(y * width + width - 1);
-}
-
-while (head < tail) {
-  const index = queue[head];
-  head += 1;
-
-  const x = index % width;
-  const y = Math.floor(index / width);
-
-  if (x > 0) enqueue(index - 1);
-  if (x + 1 < width) enqueue(index + 1);
-  if (y > 0) enqueue(index - width);
-  if (y + 1 < height) enqueue(index + width);
-}
-
-// Start from a hard connectivity mask, then feather only the outer edge.
-const hardMask = Buffer.alloc(pixelCount);
-for (let i = 0; i < pixelCount; i += 1) {
-  hardMask[i] = background[i] ? 0 : 255;
-}
-
-const featheredMask = await sharp(hardMask, {
-  raw: { width, height, channels: 1 },
-})
-  .blur(0.65)
-  .raw()
-  .toBuffer();
-
-const rgba = Buffer.alloc(pixelCount * 4);
-
-for (let i = 0; i < pixelCount; i += 1) {
-  const src = i * channels;
-  const dst = i * 4;
-  const alpha = featheredMask[i] / 255;
-
-  if (alpha <= 0.001) {
-    rgba[dst] = 0;
-    rgba[dst + 1] = 0;
-    rgba[dst + 2] = 0;
-    rgba[dst + 3] = 0;
-    continue;
-  }
-
-  // Remove the original white studio matte from semi-transparent edge pixels.
-  // This avoids the white fringe produced by runtime chroma-keying.
-  const unmatte = (channel) =>
-    Math.max(
-      0,
-      Math.min(255, Math.round((channel - 255 * (1 - alpha)) / alpha)),
-    );
-
-  rgba[dst] = alpha < 0.995 ? unmatte(data[src]) : data[src];
-  rgba[dst + 1] = alpha < 0.995 ? unmatte(data[src + 1]) : data[src + 1];
-  rgba[dst + 2] = alpha < 0.995 ? unmatte(data[src + 2]) : data[src + 2];
-  rgba[dst + 3] = Math.round(alpha * 255);
-}
-
-const cutoutPath = path.join(publicReference, "amber-touch-cutout.webp");
-
-await sharp(rgba, {
-  raw: { width, height, channels: 4 },
-})
-  .webp({
-    quality: 95,
-    alphaQuality: 100,
-    smartSubsample: true,
-    effort: 6,
+  .ensureAlpha()
+  .composite([{ input: maskSvg, blend: "dest-in" }])
+  .png({
+    compressionLevel: 9,
+    adaptiveFiltering: true,
   })
   .toFile(cutoutPath);
 
 console.log(
-  "Prepared exact Amber Touch reference and offline transparent cutout:",
+  "Prepared Amber Touch transparent PNG with a continuous silhouette mask:",
   cutoutPath,
 );
