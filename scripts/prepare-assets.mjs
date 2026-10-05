@@ -211,7 +211,7 @@ const bodySlices = bodyMeasurements.map(([imageY, pixelWidth]) => {
 });
 
 const innerSlices = bodySlices
-  .filter(([y]) => y < modelY(475) && y > modelY(1190))
+  .filter(([y]) => y < modelY(475) && y > modelY(1225))
   .map(([y, width, depth]) => [
     y - 0.015,
     width * 0.86,
