@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: commit `55f548c` — CI passed install, TypeScript and production build; Vercel production is READY.
+Latest validated implementation: commit `18bd11d` — approved bottle asset present; GitHub Actions run #74 passed install, TypeScript and production build; Vercel production is READY.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `55f548c`.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Current validated implementation commit: `18bd11d`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -29,7 +29,7 @@ Status:
 - [x] **T-008 — Reference-style materials**: glass body, dark liquid, black sculpted cap, gold collar/top and black/gold front label.
 - [x] **T-009 — Procedural Amber Touch label**: create a recognizable WAVE / Amber Touch test label inside the 3D scene without inventing alternate product identities.
 - [x] **T-010 — Bottle fidelity pass**: refine silhouette, glass edges, cap waves, refraction/highlights and proportions against the supplied photo. Revalidated with the corrective pass in `9aa99be`.
-- [~] **T-011 — Production 3D optimization**: GLB geometry is shared across all seven clones and common PBR materials are reused; final GPU/draw-call profiling remains.
+- [x] **T-011 — Historical 3D optimization work (superseded)**: no longer relevant to the current DOM-image rail.
 
 - [x] **T-038 — Historical GLB pipeline (superseded by T-043)**: move the bottle out of `Bottle.tsx` procedural geometry and generate a true `public/models/amber-touch.glb` asset during dev/build. Load it with `useGLTF` and map the real supplied label area from the source product photo.
 
@@ -38,7 +38,15 @@ Status:
 - [x] **T-041 — Mobile screenshot correction**: fix the vertically inverted label texture, pull the mobile camera back so the bottle no longer fills the viewport, lower the rail slightly, and reduce hero-title overlap. Validated in `d39040f`.\n\n- [x] **T-042 — Screenshot-driven bottle material correction**: extend the dark liquid through the lower body, remove the oversized pale base effect, make the glass clearer, darken the liquid and brighten the gold hardware to better match the real bottle. Validated in `5532d12`.\n\n- [x] **T-043 — No-guess bottle renderer**: retire the inferred GLB runtime, remove GLB generation from asset preparation, render the exact supplied front bottle reference on a cropped/chroma-keyed 3D plane, preserve the label text, and constrain Y-rotation so no unseen side geometry is fabricated.
 - [x] **T-044 — No-guess live QA baseline**: CI and Vercel production validation completed for the reference-locked renderer; screenshot review exposed runtime keying artifacts, leading to T-045.
 
-- [x] **T-046 — Remove striped alpha artifact**: replace connectivity/flood-fill background removal with one continuous traced silhouette mask, output PNG instead of WebP for stable iOS alpha, and keep the photographic bottle intact inside the silhouette. Validated in `7091b46`, live on Vercel.\n\n- [x] **T-047 — Retina bottle sharpness pass**: render the WebGL canvas at DPR 2–3, disable texture mipmaps for the bottle, keep linear full-resolution sampling, raise anisotropy, and generate a 2× Lanczos/sharpened transparent PNG for high-density mobile displays. Validated in `55f548c`, live on Vercel.\n\n## Rail interaction
+- [x] **T-046 — Remove striped alpha artifact**: replace connectivity/flood-fill background removal with one continuous traced silhouette mask, output PNG instead of WebP for stable iOS alpha, and keep the photographic bottle intact inside the silhouette. Validated in `7091b46`, live on Vercel.\n\n- [x] **T-047 — Retina bottle sharpness pass**: render the WebGL canvas at DPR 2–3, disable texture mipmaps for the bottle, keep linear full-resolution sampling, raise anisotropy, and generate a 2× Lanczos/sharpened transparent PNG for high-density mobile displays. Validated in `55f548c`, live on Vercel.\n\n## Current product rendering
+
+- [x] **T-048 — Approved canonical bottle asset**: store the owner-approved isolated Amber Touch product at `public/products/amber-touch-approved.webp` and make it the project source of truth.
+- [x] **T-049 — DOM product rendering**: remove the WebGL bottle renderer and render the canonical asset as a normal browser image.
+- [x] **T-050 — Simple rail stack**: remove obsolete Three.js / React Three Fiber / Drei / Sharp dependencies and the asset-generation script; keep the current rail on React + DOM/CSS interaction.
+- [x] **T-051 — Canonical-asset rule**: document that agents must reuse the repository asset rather than regenerate/reinterpret the bottle.
+- [~] **T-052 — DOM rail live visual QA**: CI and production deployment are ready; owner-facing mobile/desktop visual approval of the new approved asset remains.
+
+## Rail interaction
 
 - [x] **T-012 — Horizontal rail baseline**: render seven bottles across the rail.
 - [x] **T-013 — Pointer/touch drag**: allow dragging/swiping through the collection.
@@ -48,13 +56,13 @@ Status:
 - [x] **T-017 — Selection baseline**: clicking the active bottle moves it toward the camera and pushes the others back.
 - [x] **T-018 — Premium rail physics**: velocity projection, overscroll resistance, inertia-aware snapping and faster wheel cadence.
 - [x] **T-019 — Bottle secondary motion**: bottles subtly swing/twist in response to drag velocity and settle after release.
-- [x] **T-020 — Cinematic selection transition**: camera moves in, hero copy recedes, vignette increases and the selected bottle advances.
+- [x] **T-020 — Cinematic selection transition**: selected bottle scales/moves forward, hero copy recedes, vignette increases and the other bottles recede.
 - [x] **T-021 — Detail/notes reveal system**: selected-product reveal architecture is wired to render approved inspiration/notes when data exists.
 
 ## Art direction
 
 - [x] **T-022 — Black + gold base identity**: keep the current WAVE visual language.
-- [x] **T-023 — Lighting/reflection pass**: studio-style environment lightformers plus warm/cool key lights for glass and gold.
+- [x] **T-023 — Historical 3D lighting/reflection pass (superseded)**: current approved product image carries its own photographed/rendered lighting.
 - [x] **T-024 — Background motion system**: background glow shifts with rail position and interaction energy.
 - [~] **T-025 — Typography/UI polish**: transitions, selected states, safe-area behavior and premium card styling improved; final brand typography remains open.
 
@@ -67,8 +75,8 @@ Status:
 
 ## Quality
 
-- [x] **T-030 — Desktop + mobile baseline**: responsive shell, touch support and capped DPR are present.
-- [~] **T-031 — Mobile interaction tuning**: safe-area spacing, reduced DPR and gesture resistance are improved; physical device performance pass remains.
+- [x] **T-030 — Desktop + mobile baseline**: responsive shell and touch support are present with normal browser image rendering.
+- [~] **T-031 — Mobile interaction tuning**: safe-area spacing and gesture resistance are improved; physical device interaction/composition pass remains.
 - [~] **T-032 — Desktop polish**: camera, wheel cadence and selection composition improved; visual QA on multiple large viewports remains.
 - [ ] **T-033 — Reduced-motion pass**: verify the complete experience, including camera/background behavior.
 - [ ] **T-034 — Performance budget**: profile FPS, memory, draw calls and initial load once the visual pass stabilizes.
