@@ -73,6 +73,10 @@ Current implementation:
 
 True production 3D now intentionally waits for measured depth/side information, supplier CAD/3D files, or a scan. This does not block the current exact-front prototype.
 
+## Validation
+
+Commit `bbe8477` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY for the same commit.
+
 ## Next step
 
-Validate CI and Vercel for the no-guess bottle mode, inspect the new mobile render, then tune composition only—without modifying the bottle itself unless new authoritative source data is supplied.
+Owner reviews the new exact-front mobile render. After that, tune composition only—without modifying the bottle itself unless new authoritative source data is supplied.
