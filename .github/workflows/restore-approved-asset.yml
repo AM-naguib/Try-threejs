@@ -26,8 +26,8 @@ jobs:
           dir="assets/products/amber-touch-approved.b64"
           count="$(find "$dir" -maxdepth 1 -type f -name 'part-*.txt' | wc -l | tr -d ' ')"
 
-          if [ "$count" -ne 17 ]; then
-            echo "Waiting for all 17 chunks; currently have $count."
+          if [ "$count" -ne 11 ]; then
+            echo "Waiting for all 11 chunks; currently have $count."
             exit 0
           fi
 
@@ -43,10 +43,10 @@ jobs:
           assert b[:4] == b"RIFF", b[:4]
           assert b[8:12] == b"WEBP", b[8:12]
           declared = int.from_bytes(b[4:8], "little") + 8
-          assert len(b) == 196368, (len(b), declared)
+          assert len(b) == 125962, (len(b), declared)
           assert declared == len(b), (len(b), declared)
           digest = hashlib.sha256(b).hexdigest()
-          assert digest == "3a9d629abe3dc974109256e5623891be35cdbb06cb1984eb43e4c92468dcf94b", digest
+          assert digest == "d57778a7f9e0a7661c13f4d94f3e6ceec2e9af2cecd1b7a480c019bbe05db5af", digest
           print("Verified approved asset:", len(b), digest)
           PY
 
