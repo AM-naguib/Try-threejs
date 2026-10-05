@@ -29,7 +29,7 @@ export function Bottle({
 }: BottleProps) {
   const transformRoot = useRef<THREE.Group>(null);
   const swingRoot = useRef<THREE.Group>(null);
-  const bottleTexture = useTexture("/reference/amber-touch-cutout.webp");
+  const bottleTexture = useTexture("/reference/amber-touch-cutout.png");
 
   bottleTexture.colorSpace = THREE.SRGBColorSpace;
   bottleTexture.anisotropy = 8;
@@ -114,4 +114,4 @@ export function Bottle({
   );
 }
 
-useTexture.preload("/reference/amber-touch-cutout.webp");
+useTexture.preload("/reference/amber-touch-cutout.png");
