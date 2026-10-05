@@ -1,34 +1,62 @@
-# WAVE Interactive Perfume Experience
+# WAVE Interactive Fragrance Homepage
 
-Experimental interactive storefront / product-discovery experience for **WAVE Fragrances**.
+A 3D, animation-led homepage for **WAVE Fragrances** built around a horizontal fragrance rail.
 
-## Current direction
+## Direction
 
-Build a premium, animation-led perfume selector inspired by a physical product rail:
-- bottles arranged across a horizontal rail / display
-- drag / wheel / touch navigation with inertia
-- center bottle becomes the active product
-- selected bottle detaches and moves toward the camera
-- surrounding products dim / recede
-- fragrance notes and product information reveal around the bottle
-- mobile-first performance is a hard requirement
+- full homepage foundation, not an isolated demo
+- seven-fragrance data model
+- true 3D bottle geometry
+- drag/swipe with magnetic snapping
+- wheel/trackpad navigation
+- active bottle detaches toward the camera
+- current WAVE black + gold identity
+- desktop and mobile treated as first-class targets
+
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- React Three Fiber / Three.js
+- Drei
+- GSAP
+
+## Start
+
+```bash
+npm install
+npm run dev
+```
+
+Validate:
+
+```bash
+npm run typecheck
+npm run build
+```
 
 ## Project documentation
 
-- `AGENTS.md` — rules every coding agent should read before editing
-- `docs/MEMORY.md` — persistent project context and current state
-- `docs/DECISIONS.md` — confirmed decisions and rationale
-- `docs/QUESTIONS.md` — unanswered product/design/technical questions
+Before changing the implementation, read in this order:
 
-## Reference asset
+1. `AGENTS.md`
+2. `docs/MEMORY.md`
+3. `docs/DECISIONS.md`
+4. `docs/QUESTIONS.md`
+5. `docs/IMPLEMENTATION.md`
 
-Primary bottle reference supplied by the brand owner: **WAVE — Amber Touch, 60ml, Extrait De Parfum**.
+After meaningful changes, update memory/decisions/questions in the same work cycle.
 
-The repository contains a compact WebP copy encoded as base64 at:
+## Product reference
+
+The initial supplied bottle reference is **WAVE Amber Touch — 60ml — Extrait De Parfum**.
+
+Reference source:
 `assets/reference/amber-touch-reference.webp.b64`
 
-See `assets/reference/README.md` for the decode command.
+See `assets/reference/README.md` for decode instructions.
 
-## Status
+## Current status
 
-Project documentation and the first product reference are initialized. Implementation starts after the first product/design questions are resolved.
+The first homepage scaffold and procedural 3D rail are implemented. The bottle geometry is deliberately replaceable with an exact optimized GLB later. The missing six fragrance names, labels and catalog data are tracked in `docs/QUESTIONS.md`.
