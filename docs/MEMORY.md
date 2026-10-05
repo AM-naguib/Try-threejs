@@ -42,12 +42,12 @@ Reason:
 - previous GLB attempts looked visually wrong because those unseen properties had to be invented.
 
 Current implementation:
-- the exact supplied front photograph is decoded to public/reference/amber-touch.webp;
-- Bottle.tsx uses that exact image as a front-facing plane in 3D space;
-- a custom shader crops the measured source bounds, keys the white studio background and removes the white matte halo;
-- the label region is explicitly preserved so white text remains intact;
+- the exact supplied front photograph is decoded during the asset-preparation step;
+- Sharp crops the approved bottle bounds, removes only border-connected near-white background pixels, feathers the outer edge and decontaminates the original white matte;
+- the build outputs `public/reference/amber-touch-cutout.webp` with real alpha;
+- Bottle.tsx renders that transparent WebP with a standard `MeshBasicMaterial`, so there is no runtime chroma-key shader or white-box artifact;
 - no bottle part is redrawn and no unseen 3D dimensions are invented;
-- bottle Y rotation is intentionally kept very small.
+- bottle Y rotation is intentionally kept extremely small.
 
 ## Technical foundation
 
@@ -75,8 +75,8 @@ True production 3D now intentionally waits for measured depth/side information, 
 
 ## Validation
 
-Commit `bbe8477` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY for the same commit.
+Commit `ccc2c3b` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
 
 ## Next step
 
-Owner reviews the new exact-front mobile render. After that, tune composition only—without modifying the bottle itself unless new authoritative source data is supplied.
+Owner reviews the new offline-transparent bottle render on mobile. If the cutout edges are approved, continue composition and interaction polish without rebuilding the product image.
