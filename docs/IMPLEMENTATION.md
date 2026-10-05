@@ -6,68 +6,68 @@ _Last updated: 2026-10-05_
 
 - Next.js App Router
 - React
-- React Three Fiber
-- Three.js
-- Drei environment/texture helpers
-- GSAP for controlled transitions
 - TypeScript in strict mode
+- Normal DOM images
+- CSS transforms and pointer/touch events
 
-## Experience architecture
+The current product rail intentionally does **not** use Three.js, React Three Fiber, WebGL, GLB models, shaders, or a runtime image-processing pipeline.
 
-The 3D rail remains the primary homepage hero/product-discovery system. Bottle instances still move through 3D space, but the current bottle visual is intentionally **reference-locked 2.5D** so no unseen geometry is invented.
+## Canonical Amber Touch asset
 
-### Current interaction
+The owner approved one isolated bottle image as the visual source of truth:
 
-1. Seven Amber Touch test instances live on a horizontal rail.
-2. Drag/swipe follows pointer movement.
-3. Release uses drag distance plus velocity projection to pick the snap destination.
-4. Edge overscroll is damped.
-5. Bottles swing subtly while the rail is moving.
-6. Mouse wheel/trackpad advances through bottles on desktop.
+`public/products/amber-touch-approved.webp`
+
+Rules:
+
+- render this file directly with a normal `<img>`;
+- use the same file for all seven prototype bottles;
+- do not regenerate the bottle from prompts or memory;
+- do not crop, remask, sharpen, upscale, or rebuild the bottle at runtime;
+- if the bottle artwork changes, replace the canonical project asset only after explicit owner approval.
+
+## Interaction architecture
+
+The visual product stays 2D; the physical feeling comes from transforms.
+
+1. Seven Amber Touch instances sit across a horizontal rail.
+2. Pointer/touch drag follows the user's finger.
+3. Drag distance and velocity determine the snap destination.
+4. Edge drag receives resistance.
+5. Bottles tilt subtly from drag velocity.
+6. Mouse wheel/trackpad changes the active product on desktop.
 7. The centered bottle is active.
-8. Clicking the active bottle moves it toward camera; camera position also pushes in.
-9. Other bottles recede and scene/UI emphasis shifts to the selection.
-10. The bottle stays close to front-facing so the exact supplied photograph remains visually authoritative.
+8. Clicking the active bottle scales/moves it forward while other bottles fade/recede.
+9. Product UI stays data-driven so real fragrances can replace the repeated prototype later.
 
-## No-guess asset strategy
+## Rendering
 
-The previous generated GLB pipeline has been removed because it inferred bottle depth and hidden geometry from a single front photo.
+Each bottle is a standard DOM button containing the approved image.
 
-scripts/prepare-assets.mjs now only decodes the exact owner-supplied front reference into public/reference/amber-touch.webp.
+The transform uses GPU-friendly CSS properties such as:
 
-Bottle.tsx loads that exact reference with useTexture and renders it on a 3D plane.
+- `translate3d(...)`
+- `scale(...)`
+- `rotate(...)`
+- opacity
 
-The shader:
-- crops to the measured bottle bounds from the source image;
-- keys only the white studio background;
-- preserves the label region so white label text is not removed;
-- un-mattes keyed pixels to avoid the white halo from the source background;
-- does not redraw the label, cap, glass, gold or liquid;
-- does not infer side/depth geometry.
-
-This is the only implementation that can satisfy the owner's “no guessing” constraint from the currently available front-only data.
-
-## True 3D re-entry condition
-
-A production GLB is deferred until we have non-inferred depth/side information: measured dimensions, side/top/back reference views with scale, supplier CAD/model, or a scan.
-
-## Lighting
-
-The scene lighting remains for the environment/background and interaction mood. The reference-locked bottle plane is unlit/tone-mapping-disabled so the supplied product photography is not reinterpreted by synthetic PBR materials.
+No canvas texture sampling is involved, so the browser renders the product image using its normal image pipeline on Retina/mobile displays.
 
 ## Performance rules
 
-- Cap DPR.
-- Reuse the same front reference texture across all seven instances.
-- Avoid unnecessary post-processing.
-- Keep the bottle plane nearly front-facing.
+- Reuse one browser-cached product asset for all seven instances.
+- Do not add rendering engines unless the interaction actually needs them.
+- Keep transforms GPU-friendly.
+- Avoid unnecessary filters on moving bottles.
 - Respect reduced-motion preferences.
-- Profile the full rail on mobile after visual approval.
+- Test touch behavior and composition on physical mobile devices.
 
 ## Static hosting
 
-next.config.ts uses static export. Vercel is the active public preview target.
+Vercel is the active public preview target:
+
+`https://try-threejs-nu.vercel.app`
 
 ## Execution tracking
 
-The canonical implementation checklist is docs/TASKS.md. Mark tasks complete as they are actually finished.
+The canonical implementation checklist is `docs/TASKS.md`. Mark tasks complete only after implementation and validation.
