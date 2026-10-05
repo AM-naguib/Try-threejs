@@ -1,149 +1,20 @@
 "use client";
 
-import { Environment, Lightformer } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
-import type { CSSProperties } from "react";
-import { useMemo, useRef, useState } from "react";
-import * as THREE from "three";
-import { Bottle } from "./Bottle";
+import type { CSSProperties, PointerEvent as ReactPointerEvent, WheelEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fragrances, productLabel } from "@/lib/fragrances";
 
-const SPACING = 1.72;
+const PRODUCT_ASSET = "/products/amber-touch-approved.webp";
 
-function RailScene({
-  activeIndex,
-  drag,
-  motion,
-  selectedIndex,
-  setActiveIndex,
-  setSelectedIndex,
-}: {
-  activeIndex: number;
-  drag: number;
-  motion: number;
-  selectedIndex: number | null;
-  setActiveIndex: (index: number) => void;
-  setSelectedIndex: (index: number | null) => void;
-}) {
-  const rail = useRef<THREE.Group>(null);
-  const positions = useMemo(() => fragrances.map((_, index) => index * SPACING), []);
-
-  useFrame(({ camera, size }, delta) => {
-    const mobile = size.width < 720;
-
-    if (rail.current) {
-      const targetX = -activeIndex * SPACING + drag * SPACING;
-      rail.current.position.x = THREE.MathUtils.damp(rail.current.position.x, targetX, 10.5, delta);
-      rail.current.position.y = THREE.MathUtils.damp(
-        rail.current.position.y,
-        mobile ? -0.38 : -0.27,
-        6,
-        delta,
-      );
-    }
-
-    const selected = selectedIndex !== null;
-    const targetZ = mobile
-      ? (selected ? 6.25 : 7.35)
-      : (selected ? 4.78 : 5.62);
-    const targetY = mobile
-      ? (selected ? 0.22 : 0.28)
-      : (selected ? 0.33 : 0.42);
-
-    camera.position.z = THREE.MathUtils.damp(
-      camera.position.z,
-      targetZ,
-      selected ? 4.2 : 5.6,
-      delta,
-    );
-    camera.position.y = THREE.MathUtils.damp(
-      camera.position.y,
-      targetY,
-      5,
-      delta,
-    );
-  });
-
-  return (
-    <>
-      <fog attach="fog" args={["#080808", 6.3, 13]} />
-
-      <ambientLight intensity={0.22} />
-      <directionalLight position={[4, 5, 5]} intensity={2.9} color="#fff2d3" />
-      <directionalLight position={[-5, 2, 3]} intensity={1.25} color="#d8e0ff" />
-      <spotLight
-        position={[0, 5.5, 4.5]}
-        intensity={52}
-        distance={12}
-        angle={0.46}
-        penumbra={0.86}
-        color="#ffe6ae"
-      />
-      <pointLight position={[0, -1.7, 3.4]} intensity={18} distance={6} color="#c89a36" />
-
-      <Environment resolution={128}>
-        <Lightformer
-          form="rect"
-          intensity={3.1}
-          color="#fff4de"
-          position={[0, 4, 3]}
-          rotation={[Math.PI / 2.4, 0, 0]}
-          scale={[6, 1.2, 1]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={2}
-          color="#d8e4ff"
-          position={[-4, 1, 2]}
-          rotation={[0, Math.PI / 2.3, 0]}
-          scale={[3, 2, 1]}
-        />
-        <Lightformer
-          form="ring"
-          intensity={1.6}
-          color="#d3a13d"
-          position={[3.5, -1, 1]}
-          rotation={[0, -Math.PI / 2.5, 0]}
-          scale={2.2}
-        />
-      </Environment>
-
-      <mesh position={[0, 1.77, -0.22]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.024, 0.024, 14, 24]} />
-        <meshStandardMaterial color="#a87929" metalness={0.94} roughness={0.18} />
-      </mesh>
-
-      <group ref={rail} position={[0, -0.27, 0]}>
-        {fragrances.map((fragrance, index) => (
-          <group key={fragrance.id} position={[positions[index], 0, 0]}>
-            <mesh position={[0, 1.66, -0.19]}>
-              <cylinderGeometry args={[0.011, 0.011, 0.24, 16]} />
-              <meshStandardMaterial color="#8a6b35" metalness={0.78} roughness={0.28} />
-            </mesh>
-            <Bottle
-              fragrance={fragrance}
-              active={index === activeIndex}
-              selected={index === selectedIndex}
-              dimmed={selectedIndex !== null && index !== selectedIndex}
-              motion={motion}
-              index={index}
-              onActivate={() => {
-                if (selectedIndex === null) setActiveIndex(index);
-              }}
-              onSelect={() => setSelectedIndex(index)}
-            />
-          </group>
-        ))}
-      </group>
-    </>
-  );
-}
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 
 export function PerfumeExperience() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [drag, setDrag] = useState(0);
+  const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(390);
   const [velocity, setVelocity] = useState(0);
 
   const startX = useRef(0);
@@ -151,37 +22,124 @@ export function PerfumeExperience() {
   const lastTime = useRef(0);
   const dragRef = useRef(0);
   const velocityRef = useRef(0);
+  const movedRef = useRef(false);
   const wheelLock = useRef(false);
 
-  const activeFragrance = fragrances[selectedIndex ?? activeIndex];
-  const clampIndex = (value: number) => Math.max(0, Math.min(fragrances.length - 1, value));
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
 
-  const finishDrag = () => {
+  const spacing = useMemo(
+    () => clamp(viewportWidth * 0.58, 190, 360),
+    [viewportWidth],
+  );
+
+  const bottleWidth = useMemo(
+    () => clamp(viewportWidth * 0.46, 180, 320),
+    [viewportWidth],
+  );
+
+  const activeFragrance = fragrances[selectedIndex ?? activeIndex];
+  const clampIndex = useCallback(
+    (value: number) => clamp(value, 0, fragrances.length - 1),
+    [],
+  );
+
+  const finishDrag = useCallback(() => {
     if (!dragging) return;
 
-    const projectedDrag = THREE.MathUtils.clamp(
-      dragRef.current + velocityRef.current * 0.085,
-      -3.2,
-      3.2,
-    );
-    const steps = Math.round(-projectedDrag);
-    const fallbackStep =
-      Math.abs(dragRef.current) > 0.2 ? (dragRef.current < 0 ? 1 : -1) : 0;
+    const projected = dragRef.current + velocityRef.current * 120;
+    let steps = Math.round(-projected / spacing);
 
-    setActiveIndex((current) => clampIndex(current + (steps || fallbackStep)));
+    if (steps === 0 && Math.abs(dragRef.current) > spacing * 0.2) {
+      steps = dragRef.current < 0 ? 1 : -1;
+    }
+
+    steps = clamp(steps, -2, 2);
+
+    setActiveIndex((current) => clampIndex(current + steps));
+    setDragX(0);
+    setVelocity(0);
     dragRef.current = 0;
     velocityRef.current = 0;
-    setDrag(0);
-    setVelocity(0);
     setDragging(false);
+  }, [clampIndex, dragging, spacing]);
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (selectedIndex !== null) return;
+
+    startX.current = event.clientX;
+    lastX.current = event.clientX;
+    lastTime.current = performance.now();
+    dragRef.current = 0;
+    velocityRef.current = 0;
+    movedRef.current = false;
+    setVelocity(0);
+    setDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const motion = dragging ? drag * 0.42 + velocity * 0.052 : 0;
-  const glowX = 18 + ((activeIndex + drag) / Math.max(fragrances.length - 1, 1)) * 64;
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragging || selectedIndex !== null) return;
+
+    let nextDrag = event.clientX - startX.current;
+
+    if (
+      (activeIndex === 0 && nextDrag > 0) ||
+      (activeIndex === fragrances.length - 1 && nextDrag < 0)
+    ) {
+      nextDrag *= 0.28;
+    }
+
+    nextDrag = clamp(nextDrag, -spacing * 2.3, spacing * 2.3);
+    dragRef.current = nextDrag;
+    setDragX(nextDrag);
+
+    if (Math.abs(nextDrag) > 7) movedRef.current = true;
+
+    const now = performance.now();
+    const dt = Math.max(now - lastTime.current, 16);
+    const nextVelocity = clamp((event.clientX - lastX.current) / dt, -2.4, 2.4);
+    velocityRef.current = velocityRef.current * 0.55 + nextVelocity * 0.45;
+    setVelocity(velocityRef.current);
+
+    lastX.current = event.clientX;
+    lastTime.current = now;
+  };
+
+  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (selectedIndex !== null || wheelLock.current) return;
+
+    const intent =
+      Math.abs(event.deltaX) > Math.abs(event.deltaY)
+        ? event.deltaX
+        : event.deltaY;
+
+    if (Math.abs(intent) < 8) return;
+
+    wheelLock.current = true;
+    setActiveIndex((current) =>
+      clampIndex(current + (intent > 0 ? 1 : -1)),
+    );
+
+    window.setTimeout(() => {
+      wheelLock.current = false;
+    }, 180);
+  };
+
+  const glowX =
+    18 +
+    ((activeIndex - dragX / Math.max(spacing, 1)) /
+      Math.max(fragrances.length - 1, 1)) *
+      64;
 
   const shellStyle = {
-    "--glow-x": `${THREE.MathUtils.clamp(glowX, 12, 88)}%`,
-    "--scene-energy": String(Math.min(1, Math.abs(motion) * 0.8)),
+    "--glow-x": `${clamp(glowX, 12, 88)}%`,
+    "--scene-energy": String(Math.min(1, Math.abs(velocity) * 0.7)),
+    "--bottle-width": `${bottleWidth}px`,
   } as CSSProperties;
 
   return (
@@ -190,110 +148,123 @@ export function PerfumeExperience() {
       data-dragging={dragging}
       data-selected={selectedIndex !== null}
       style={shellStyle}
-      onPointerDown={(event) => {
-        if (selectedIndex !== null) return;
-
-        startX.current = event.clientX;
-        lastX.current = event.clientX;
-        lastTime.current = performance.now();
-        dragRef.current = 0;
-        velocityRef.current = 0;
-        setVelocity(0);
-        setDragging(true);
-        event.currentTarget.setPointerCapture(event.pointerId);
-      }}
-      onPointerMove={(event) => {
-        if (!dragging || selectedIndex !== null) return;
-
-        const width = Math.max(window.innerWidth, 320);
-        const denominator = Math.min(width * 0.22, 220);
-        let normalized = (event.clientX - startX.current) / denominator;
-
-        if ((activeIndex === 0 && normalized > 0) ||
-            (activeIndex === fragrances.length - 1 && normalized < 0)) {
-          normalized *= 0.3;
-        }
-
-        normalized = THREE.MathUtils.clamp(normalized, -2.75, 2.75);
-        dragRef.current = normalized;
-        setDrag(normalized);
-
-        const now = performance.now();
-        const dt = Math.max((now - lastTime.current) / 1000, 0.016);
-        const nextVelocity = THREE.MathUtils.clamp(
-          ((event.clientX - lastX.current) / denominator) / dt,
-          -10,
-          10,
-        );
-
-        velocityRef.current = THREE.MathUtils.lerp(velocityRef.current, nextVelocity, 0.4);
-        setVelocity(velocityRef.current);
-        lastX.current = event.clientX;
-        lastTime.current = now;
-      }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      onWheel={(event) => {
-        if (selectedIndex !== null || wheelLock.current) return;
-
-        const intent = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-        if (Math.abs(intent) < 8) return;
-
-        wheelLock.current = true;
-        setActiveIndex((current) => clampIndex(current + (intent > 0 ? 1 : -1)));
-        window.setTimeout(() => {
-          wheelLock.current = false;
-        }, 190);
-      }}
+      onWheel={onWheel}
     >
-      <Canvas
-        className="experience-canvas"
-        camera={{ position: [0, 0.42, 5.62], fov: 38 }}
-        dpr={[2, 3]}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-        }}
-      >
-        <RailScene
-          activeIndex={activeIndex}
-          drag={drag}
-          motion={motion}
-          selectedIndex={selectedIndex}
-          setActiveIndex={setActiveIndex}
-          setSelectedIndex={setSelectedIndex}
-        />
-      </Canvas>
+      <div className="dom-rail-stage" aria-label="Interactive fragrance rail">
+        <div className="dom-rail-bar" aria-hidden="true" />
+
+        {fragrances.map((fragrance, index) => {
+          const relative = index - activeIndex;
+          const x = relative * spacing + dragX;
+          const distance = Math.min(Math.abs(x) / spacing, 2.4);
+          const active = index === activeIndex;
+          const selected = index === selectedIndex;
+          const dimmed = selectedIndex !== null && !selected;
+
+          const scale = selected
+            ? 1.16
+            : active
+              ? 1.03
+              : Math.max(0.82, 0.94 - distance * 0.055);
+
+          const opacity = dimmed
+            ? 0.18
+            : Math.max(0.5, 1 - distance * 0.16);
+
+          const swing =
+            dragging && Math.abs(velocity) > 0.01
+              ? clamp(-velocity * 4.8, -8, 8)
+              : active
+                ? 0
+                : clamp(relative * -0.8, -2.5, 2.5);
+
+          const y = selected ? -16 : active ? 0 : distance * 4;
+
+          return (
+            <button
+              key={fragrance.id}
+              type="button"
+              className="dom-bottle"
+              data-active={active}
+              data-selected={selected}
+              style={{
+                transform: `translate3d(calc(-50% + ${x}px), ${y}px, 0) scale(${scale}) rotate(${swing}deg)`,
+                opacity,
+                zIndex: selected ? 12 : active ? 10 : Math.max(1, 8 - Math.round(distance)),
+              }}
+              aria-label={productLabel(fragrance, index)}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (movedRef.current) {
+                  movedRef.current = false;
+                  return;
+                }
+
+                if (!active) {
+                  setActiveIndex(index);
+                  return;
+                }
+
+                setSelectedIndex(index);
+              }}
+            >
+              <span className="bottle-hanger" aria-hidden="true" />
+              <img
+                src={PRODUCT_ASSET}
+                alt=""
+                draggable={false}
+                decoding="async"
+                fetchPriority={index === 0 ? "high" : "auto"}
+              />
+            </button>
+          );
+        })}
+      </div>
 
       {selectedIndex !== null && (
         <button
           className="detail-close"
           type="button"
           aria-label="Close fragrance detail"
-          onClick={() => setSelectedIndex(null)}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            setSelectedIndex(null);
+          }}
         >
           ×
         </button>
       )}
 
-      <div className="experience-ui" data-selected={selectedIndex !== null} aria-live="polite">
+      <div
+        className="experience-ui"
+        data-selected={selectedIndex !== null}
+        aria-live="polite"
+      >
         <div className="product-card">
           <span className="product-index">
-            {String((selectedIndex ?? activeIndex) + 1).padStart(2, "0")} / {String(fragrances.length).padStart(2, "0")}
+            {String((selectedIndex ?? activeIndex) + 1).padStart(2, "0")} /{" "}
+            {String(fragrances.length).padStart(2, "0")}
           </span>
           <h3>{productLabel(activeFragrance, selectedIndex ?? activeIndex)}</h3>
           <p className="product-meta">
             {activeFragrance.size && <span>{activeFragrance.size}</span>}
-            {activeFragrance.concentration && <span>{activeFragrance.concentration}</span>}
+            {activeFragrance.concentration && (
+              <span>{activeFragrance.concentration}</span>
+            )}
           </p>
 
           {selectedIndex !== null &&
             (activeFragrance.inspiration || activeFragrance.notes.length > 0) && (
               <div className="fragrance-details">
                 {activeFragrance.inspiration && (
-                  <p className="fragrance-inspiration">{activeFragrance.inspiration}</p>
+                  <p className="fragrance-inspiration">
+                    {activeFragrance.inspiration}
+                  </p>
                 )}
                 {activeFragrance.notes.length > 0 && (
                   <div className="fragrance-notes">
@@ -307,7 +278,11 @@ export function PerfumeExperience() {
         </div>
 
         <div className="selection-controls">
-          <span>{selectedIndex === null ? "Drag / swipe / scroll" : "Selected fragrance"}</span>
+          <span>
+            {selectedIndex === null
+              ? "Drag / swipe / scroll"
+              : "Selected fragrance"}
+          </span>
           <div className="selection-dots" aria-label="Fragrance selector">
             {fragrances.map((fragrance, index) => (
               <button
@@ -316,7 +291,9 @@ export function PerfumeExperience() {
                 type="button"
                 aria-label={`${productLabel(fragrance, index)} ${index + 1}`}
                 aria-current={index === activeIndex}
-                onClick={() => {
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
                   if (selectedIndex === null) setActiveIndex(index);
                 }}
               />
