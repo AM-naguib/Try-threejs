@@ -62,7 +62,8 @@ Current pinned foundation:
 - Initial rail supports pointer drag/swipe, magnetic-style snap, wheel navigation, active-product state and selected-bottle forward animation.
 - Black/gold responsive homepage shell and product status UI are implemented.
 - GitHub Actions CI is configured to install dependencies, typecheck and production-build on every push.
-- The first CI run failed only because npm caching expected a lockfile; that cache setting was removed in commit `4eac9e5` so validation can proceed before the lockfile is generated.
+- CI setup was corrected after its first run exposed a missing-lockfile cache configuration issue.
+- The first TypeScript validation exposed GSAP cleanup typing; that was fixed in commit `3215f9a` and CI is revalidating the scaffold.
 
 ## Important constraint
 
@@ -70,4 +71,4 @@ Do not invent the missing six product names, notes, prices, inspiration, reviews
 
 ## Next step
 
-Get a clean CI typecheck/build, fix any code issues it reveals, then iterate on rail physics and bottle fidelity. In parallel collect the six remaining product names, labels and catalog data listed in `docs/QUESTIONS.md`.
+Get a clean CI typecheck/build, fix any remaining code issues it reveals, then iterate on rail physics and bottle fidelity. In parallel collect the six remaining product names, labels and catalog data listed in `docs/QUESTIONS.md`.
