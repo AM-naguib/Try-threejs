@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated prototype: commit `09e69ec` — GitHub Actions CI run #20 passed install, TypeScript and production build.
+Latest validated prototype: commit `5a24672` — GitHub Actions CI run #25 passed install, TypeScript and production build.
 
 Status:
 - `[x]` complete
@@ -15,7 +15,7 @@ Status:
 
 - [x] **T-001 — Project operating docs**: create agent rules, memory, decisions and questions files.
 - [x] **T-002 — Frontend foundation**: scaffold Next.js + React + TypeScript + React Three Fiber + Three.js + GSAP.
-- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `09e69ec`.
+- [x] **T-003 — CI validation**: GitHub Actions installs dependencies, typechecks and production-builds successfully. Latest validated code commit: `5a24672`.
 - [x] **T-004 — Full-homepage direction**: treat the rail experience as the homepage foundation, not a detached demo.
 
 ## Prototype catalog
@@ -33,7 +33,7 @@ Status:
 
 - [x] **T-038 — Real GLB pipeline**: move the bottle out of `Bottle.tsx` procedural geometry and generate a true `public/models/amber-touch.glb` asset during dev/build. Load it with `useGLTF` and map the real supplied label area from the source product photo.
 
-- [x] **T-039 — Pixel-traced bottle correction**: replace hand-estimated bottle widths with measurements taken directly from the supplied 1536×1536 reference rows; correct label position/UV crop and trace the cap radius profile from the source image.
+- [x] **T-039 — Pixel-traced bottle correction**: replace hand-estimated bottle widths with measurements taken directly from the supplied 1536×1536 reference rows; correct label position/UV crop and trace the cap radius profile from the source image.\n- [x] **T-040 — GLB v2 proportion rebuild**: redo the GLB again from the latest reference using one global image-to-model scale, measured shoulder/body taper, a smaller photo-matched cap profile, full-height label placement and surface-following label depth. Validated in `5a24672`.
 
 ## Rail interaction
 
