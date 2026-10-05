@@ -86,3 +86,7 @@ D-025 supersedes the prototype implementation parts of D-011, D-021 and D-024 wh
 
 ### D-027 — Transparent bottle asset is generated offline
 The interactive prototype should use a preprocessed transparent WebP derived from the supplied front product photo. White-background removal, edge feathering and white-matte decontamination happen in the build asset step with Sharp. Runtime Three.js uses a normal transparent texture; do not use a chroma-key shader for the bottle.
+
+
+### D-028 — Use a continuous silhouette mask for the bottle cutout
+Do not remove the white background by color connectivity through the bottle image. Transparent glass and bright reflections can connect visually to the studio background and create striped/fragmented alpha on mobile. Use one traced outer silhouette mask and preserve all photographic pixels inside it. Output PNG for predictable alpha in the current iOS/WebGL target.
