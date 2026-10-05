@@ -69,3 +69,6 @@ Do not block current 3D work on measured dimensions or an external GLB. Build an
 
 ### D-022 — Persistent task ledger
 Maintain `docs/TASKS.md` as the project execution checklist. Every completed task must be marked complete in the same work cycle.
+
+### D-023 — Front product photo is the bottle-shape authority
+When the procedural bottle disagrees with the supplied Amber Touch front photo, prioritize the photo's visible proportions: broad/faceted shoulders, tapered body/foot, larger front label coverage, neck ratio and the continuous rippled black cap silhouette. Prototype geometry should be corrected against that reference before decorative polish.
