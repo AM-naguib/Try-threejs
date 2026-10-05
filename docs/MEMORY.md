@@ -68,10 +68,10 @@ Current pinned foundation:
 - Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
 - Studio environment lightformers improve glass/gold reflections without remote HDR assets.
 - Background glow responds to rail position and interaction energy.
-- Commit `5a24672` passed GitHub Actions CI run #25: dependency install, TypeScript validation and production build all succeeded, including the rebuilt GLB v2 generation step.
-- Vercel production deployment for commit `5a24672` is READY and mapped to `https://try-threejs-nu.vercel.app`.
+- Commit `d39040f` passed GitHub Actions CI run #32: install, TypeScript validation and production build all succeeded.ndency install, TypeScript validation and production build all succeeded, including the rebuilt GLB v2 generation step.
+- Vercel production deployment for commit `d39040f` is READY and mapped to `https://try-threejs-nu.vercel.app`.nd mapped to `https://try-threejs-nu.vercel.app`.
 
-## Prototype blockers
+- Mobile screenshot review exposed two concrete issues: the label texture was vertically inverted and the camera was too close, making the bottle dominate the viewport and collide with the hero copy. Both are corrected in the live build.\n\n## Prototype blockers
 
 No implementation blocker is active. The latest bottle correction is live and ready for visual approval.
 
