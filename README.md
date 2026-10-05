@@ -65,4 +65,4 @@ See `assets/reference/README.md` for decode instructions.
 
 ## Current status
 
-Commit `932e3e1` is the current validated visual/interaction build and passes install, TypeScript and production build in GitHub Actions. Public-host deployment is tracked as T-036 in `docs/TASKS.md`.
+Commit `9aa99be` is the current validated bottle-correction build and passes install, TypeScript and production build in GitHub Actions. Live prototype: `https://try-threejs-nu.vercel.app`.
