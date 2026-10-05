@@ -61,19 +61,19 @@ Current pinned foundation:
 - `docs/TASKS.md` is the required execution checklist.
 - Amber Touch reference asset is stored in `assets/reference/`.
 - The catalog renders seven unique data entries that all intentionally represent Amber Touch for testing.
-- Bottle model has a refined beveled glass silhouette, dark liquid, thicker glass base, sculpted cap bands, metallic gold hardware and generated Amber Touch label.
+- Bottle model was corrected again against the latest supplied front photo: wider/faceted shoulders, narrower foot, larger label area, corrected neck ratio and a continuous lathed rippled cap replace the previous stacked-cylinder approximation.
 - Shared geometry/materials reduce repeated 3D resource creation.
 - Rail physics now include velocity projection, overscroll resistance, inertia-aware snap and secondary bottle swing/twist.
 - Selected product transition includes camera push-in, scene vignette and UI/hero de-emphasis.
 - Studio environment lightformers improve glass/gold reflections without remote HDR assets.
 - Background glow responds to rail position and interaction energy.
-- Commit `932e3e1` passed GitHub Actions CI run #10: dependency install, TypeScript validation and production build all succeeded.
-- A GitHub Pages workflow was prepared, but repository Pages creation failed because the GitHub integration is not permitted to enable Pages automatically.
+- Commit `9aa99be` passed GitHub Actions CI run #12: dependency install, TypeScript validation and production build all succeeded.
+- Vercel production deployment for commit `9aa99be` is READY and the production alias remains `https://try-threejs-nu.vercel.app`.
 
 ## Prototype blockers
 
-The code itself is not blocked. The only current blocker for a clean public test URL is hosting authorization.
+No implementation blocker is active. The latest bottle correction is live and ready for visual approval.
 
 ## Next step
 
-Publish the validated build through an authorized hosting connection, then continue T-027/T-028 and remaining device/performance QA while preserving the same task-ledger workflow.
+Get visual approval on the corrected bottle silhouette from the live Vercel build. If approved, continue T-027/T-028 and the remaining device/performance QA.
