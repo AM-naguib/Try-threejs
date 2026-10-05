@@ -108,6 +108,82 @@ h1 {
 .experience-shell[data-dragging="true"] { cursor: grabbing; }
 .experience-canvas { position: absolute !important; inset: 0; z-index: 1; }
 
+.dom-rail-stage {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: clamp(15.5rem, 33vh, 20rem);
+  height: clamp(18rem, 43vh, 30rem);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dom-rail-bar {
+  position: absolute;
+  top: 0;
+  left: -6vw;
+  right: -6vw;
+  height: 3px;
+  background:
+    linear-gradient(180deg, rgba(255,226,143,.85), rgba(137,90,20,.95));
+  box-shadow:
+    0 0 0 1px rgba(76,45,5,.72),
+    0 .2rem 1.2rem rgba(200,154,54,.16);
+}
+
+.dom-bottle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--bottle-width);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transform-origin: 50% 1.4rem;
+  transition:
+    transform .58s cubic-bezier(.18,.82,.2,1),
+    opacity .4s ease,
+    filter .4s ease;
+  will-change: transform;
+}
+
+.experience-shell[data-dragging="true"] .dom-bottle {
+  transition: opacity .18s linear, filter .18s linear;
+}
+
+.dom-bottle[data-selected="true"] {
+  filter: drop-shadow(0 1.8rem 3rem rgba(0,0,0,.46));
+}
+
+.bottle-hanger {
+  display: block;
+  width: 1px;
+  height: clamp(1.4rem, 4vh, 2.25rem);
+  margin: 0 auto -.2rem;
+  background: linear-gradient(180deg, #d6aa50, #71501b);
+  box-shadow: 0 0 .45rem rgba(203,156,54,.32);
+}
+
+.dom-bottle img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  image-rendering: auto;
+  transform: translateZ(0);
+}
+
+.dom-bottle:focus-visible {
+  outline: 1px solid rgba(221,177,82,.9);
+  outline-offset: .4rem;
+}
+
+
 .experience-ui {
   position: absolute;
   z-index: 7;
@@ -261,6 +337,13 @@ h1 {
   .site-header { padding-top: max(1.1rem, env(safe-area-inset-top)); }
   .site-nav { gap: .85rem; font-size: .62rem; }
   .hero-copy { top: 6rem; }
+  .dom-rail-stage {
+    top: clamp(16rem, 31vh, 18rem);
+    height: 19rem;
+  }
+  .bottle-hanger {
+    height: 1.4rem;
+  }
   h1 {
     max-width: 8ch;
     font-size: clamp(2.65rem, 12.5vw, 4.65rem);
@@ -285,4 +368,5 @@ h1 {
     transition-duration: 0.01ms !important;
   }
   .fragrance-details { animation: none; }
+  .dom-bottle { transition-duration: 0.01ms !important; }
 }
