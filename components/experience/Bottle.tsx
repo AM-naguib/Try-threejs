@@ -32,9 +32,11 @@ export function Bottle({
   const bottleTexture = useTexture("/reference/amber-touch-cutout.png");
 
   bottleTexture.colorSpace = THREE.SRGBColorSpace;
-  bottleTexture.anisotropy = 8;
-  bottleTexture.minFilter = THREE.LinearMipmapLinearFilter;
+  bottleTexture.anisotropy = 16;
+  bottleTexture.generateMipmaps = false;
+  bottleTexture.minFilter = THREE.LinearFilter;
   bottleTexture.magFilter = THREE.LinearFilter;
+  bottleTexture.needsUpdate = true;
 
   useFrame((_, delta) => {
     if (!swingRoot.current) return;
