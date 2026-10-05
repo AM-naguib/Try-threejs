@@ -33,10 +33,12 @@ Every agent must read `AGENTS.md`, this file, `docs/DECISIONS.md`, and `docs/QUE
 ## Current repository state
 
 - Repository was empty when work started.
-- Project documentation has been initialized.
+- Project documentation is initialized.
+- Amber Touch reference is committed at `assets/reference/amber-touch-reference.webp.b64`.
+- Reference decode instructions are in `assets/reference/README.md`.
 - Implementation stack and final visual behavior are not yet confirmed.
-- Bottle reference image is being added to `assets/reference/`.
+- No frontend scaffold has been created yet; that is intentionally waiting for the initial answers.
 
 ## Next step
 
-Resolve the initial product/design/technical questions in `docs/QUESTIONS.md`, then scaffold the first interactive prototype around the confirmed choices.
+Resolve the initial product/design/technical questions in `docs/QUESTIONS.md`, record the answers as decisions, then scaffold the first interactive prototype around the confirmed choices.
