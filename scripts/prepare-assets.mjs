@@ -333,7 +333,7 @@ add(shoulderCollar, "Collar_High");
 
 add(
   new Mesh(
-    new (await import("three")).LatheGeometry(capProfile, 96),
+    new LatheGeometry(capProfile, 96),
     capMaterial,
   ),
   "Cap_Black_Rippled",
