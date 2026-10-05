@@ -43,9 +43,9 @@ Reason:
 
 Current implementation:
 - the exact supplied front photograph is decoded during the asset-preparation step;
-- Sharp crops the approved bottle bounds, removes only border-connected near-white background pixels, feathers the outer edge and decontaminates the original white matte;
-- the build outputs `public/reference/amber-touch-cutout.webp` with real alpha;
-- Bottle.tsx renders that transparent WebP with a standard `MeshBasicMaterial`, so there is no runtime chroma-key shader or white-box artifact;
+- Sharp crops the approved bottle bounds and applies one continuous traced silhouette mask, so transparent glass/highlights inside the bottle are never mistaken for background;
+- the build outputs `public/reference/amber-touch-cutout.png` with stable alpha for iOS/WebGL;
+- Bottle.tsx renders that PNG with a standard `MeshBasicMaterial`, so there is no runtime chroma-key shader and no flood-fill striping;
 - no bottle part is redrawn and no unseen 3D dimensions are invented;
 - bottle Y rotation is intentionally kept extremely small.
 
@@ -75,8 +75,8 @@ True production 3D now intentionally waits for measured depth/side information, 
 
 ## Validation
 
-Commit `ccc2c3b` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
+Commit `7091b46` passed dependency install, TypeScript validation and production build. Vercel production deployment is READY and aliased to `try-threejs-nu.vercel.app`.
 
 ## Next step
 
-Owner reviews the new offline-transparent bottle render on mobile. If the cutout edges are approved, continue composition and interaction polish without rebuilding the product image.
+Owner reviews the PNG silhouette-mask render on mobile. If the bottle edge is visually acceptable, continue composition and interaction polish.
