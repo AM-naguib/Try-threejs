@@ -23,86 +23,114 @@ const BLACK = "#080808";
 function createBottleShape() {
   const shape = new THREE.Shape();
 
-  shape.moveTo(-0.43, -0.82);
-  shape.quadraticCurveTo(-0.52, -0.81, -0.525, -0.71);
-  shape.lineTo(-0.49, 0.38);
-  shape.quadraticCurveTo(-0.485, 0.5, -0.39, 0.56);
-  shape.lineTo(-0.255, 0.64);
-  shape.quadraticCurveTo(-0.2, 0.68, -0.19, 0.77);
-  shape.lineTo(-0.18, 0.84);
-  shape.lineTo(0.18, 0.84);
-  shape.lineTo(0.19, 0.77);
-  shape.quadraticCurveTo(0.2, 0.68, 0.255, 0.64);
-  shape.lineTo(0.39, 0.56);
-  shape.quadraticCurveTo(0.485, 0.5, 0.49, 0.38);
-  shape.lineTo(0.525, -0.71);
-  shape.quadraticCurveTo(0.52, -0.81, 0.43, -0.82);
-  shape.quadraticCurveTo(0, -0.855, -0.43, -0.82);
+  // Traced from the supplied Amber Touch front reference:
+  // narrower foot -> gently widening body -> broad faceted shoulders -> narrow neck.
+  shape.moveTo(-0.46, -0.86);
+  shape.quadraticCurveTo(-0.53, -0.855, -0.545, -0.79);
+  shape.quadraticCurveTo(-0.565, -0.28, -0.585, 0.34);
+  shape.quadraticCurveTo(-0.59, 0.455, -0.515, 0.515);
+  shape.lineTo(-0.315, 0.625);
+  shape.quadraticCurveTo(-0.255, 0.66, -0.245, 0.73);
+  shape.lineTo(-0.235, 0.82);
+  shape.lineTo(0.235, 0.82);
+  shape.lineTo(0.245, 0.73);
+  shape.quadraticCurveTo(0.255, 0.66, 0.315, 0.625);
+  shape.lineTo(0.515, 0.515);
+  shape.quadraticCurveTo(0.59, 0.455, 0.585, 0.34);
+  shape.quadraticCurveTo(0.565, -0.28, 0.545, -0.79);
+  shape.quadraticCurveTo(0.53, -0.855, 0.46, -0.86);
+  shape.quadraticCurveTo(0, -0.9, -0.46, -0.86);
 
   return shape;
 }
 
+function createCapGeometry() {
+  // One continuous lathed profile gives the cap the broad, wrapped/rippled
+  // silhouette visible in the product photo instead of stacked straight cylinders.
+  const profile = [
+    new THREE.Vector2(0.305, -0.31),
+    new THREE.Vector2(0.345, -0.285),
+    new THREE.Vector2(0.365, -0.235),
+    new THREE.Vector2(0.35, -0.19),
+    new THREE.Vector2(0.395, -0.145),
+    new THREE.Vector2(0.415, -0.07),
+    new THREE.Vector2(0.405, 0.01),
+    new THREE.Vector2(0.37, 0.065),
+    new THREE.Vector2(0.385, 0.13),
+    new THREE.Vector2(0.395, 0.19),
+    new THREE.Vector2(0.365, 0.245),
+    new THREE.Vector2(0.335, 0.285),
+    new THREE.Vector2(0.305, 0.31),
+  ];
+
+  const geometry = new THREE.LatheGeometry(profile, 64);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 const BOTTLE_SHAPE = createBottleShape();
 const EXTRUDE_OPTIONS = {
-  depth: 0.4,
+  depth: 0.42,
   steps: 1,
   bevelEnabled: true,
-  bevelSegments: 5,
-  bevelSize: 0.04,
-  bevelThickness: 0.04,
-  curveSegments: 24,
+  bevelSegments: 6,
+  bevelSize: 0.045,
+  bevelThickness: 0.045,
+  curveSegments: 32,
 };
 
 const OUTER_GEOMETRY = new THREE.ExtrudeGeometry(BOTTLE_SHAPE, EXTRUDE_OPTIONS);
-OUTER_GEOMETRY.translate(0, 0, -0.2);
+OUTER_GEOMETRY.translate(0, 0, -0.21);
 OUTER_GEOMETRY.computeVertexNormals();
 
+const CAP_GEOMETRY = createCapGeometry();
+
 const GLASS_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: new THREE.Color("#ded6c8"),
-  roughness: 0.045,
+  color: new THREE.Color("#e5ded2"),
+  roughness: 0.04,
   metalness: 0,
-  transmission: 0.95,
-  thickness: 0.62,
-  ior: 1.48,
+  transmission: 0.96,
+  thickness: 0.72,
+  ior: 1.49,
   transparent: true,
-  opacity: 0.9,
-  clearcoat: 0.26,
-  clearcoatRoughness: 0.08,
+  opacity: 0.92,
+  clearcoat: 0.3,
+  clearcoatRoughness: 0.07,
   attenuationColor: new THREE.Color("#d8c7aa"),
-  attenuationDistance: 2.1,
-  envMapIntensity: 1.7,
+  attenuationDistance: 2.25,
+  envMapIntensity: 1.85,
 });
 
 const LIQUID_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: new THREE.Color("#1d1007"),
-  roughness: 0.18,
+  color: new THREE.Color("#160b05"),
+  roughness: 0.2,
   metalness: 0,
-  transmission: 0.16,
-  thickness: 0.42,
+  transmission: 0.1,
+  thickness: 0.48,
   transparent: true,
-  opacity: 0.73,
-  envMapIntensity: 0.8,
+  opacity: 0.78,
+  envMapIntensity: 0.82,
 });
 
 const GOLD_MATERIAL = new THREE.MeshStandardMaterial({
   color: new THREE.Color(GOLD),
-  metalness: 0.96,
-  roughness: 0.115,
-  envMapIntensity: 2,
+  metalness: 0.97,
+  roughness: 0.1,
+  envMapIntensity: 2.2,
 });
 
 const GOLD_HIGHLIGHT_MATERIAL = new THREE.MeshStandardMaterial({
-  color: new THREE.Color("#f2c661"),
-  metalness: 0.98,
-  roughness: 0.065,
-  envMapIntensity: 2.3,
+  color: new THREE.Color("#f4ca68"),
+  metalness: 0.99,
+  roughness: 0.055,
+  envMapIntensity: 2.5,
 });
 
 const CAP_MATERIAL = new THREE.MeshStandardMaterial({
   color: new THREE.Color(BLACK),
-  roughness: 0.34,
-  metalness: 0.08,
-  envMapIntensity: 0.8,
+  roughness: 0.38,
+  metalness: 0.06,
+  envMapIntensity: 0.75,
 });
 
 const labelTextureCache = new Map<string, THREE.CanvasTexture>();
@@ -114,7 +142,7 @@ function createLabelTexture(name: string) {
 
   const canvas = document.createElement("canvas");
   canvas.width = 512;
-  canvas.height = 640;
+  canvas.height = 744;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
@@ -123,35 +151,35 @@ function createLabelTexture(name: string) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.strokeStyle = gold;
-  ctx.lineWidth = 10;
-  ctx.strokeRect(24, 24, 464, 592);
+  ctx.lineWidth = 9;
+  ctx.strokeRect(24, 24, 464, 696);
   ctx.lineWidth = 2;
-  ctx.strokeRect(38, 38, 436, 564);
+  ctx.strokeRect(38, 38, 436, 668);
 
   ctx.fillStyle = gold;
   ctx.textAlign = "center";
   ctx.font = "500 72px Arial";
-  ctx.fillText("WAVE", 256, 118);
+  ctx.fillText("WAVE", 256, 126);
 
   ctx.strokeStyle = gold;
-  ctx.lineWidth = 6;
-  for (const offset of [-12, 0, 12]) {
+  ctx.lineWidth = 5;
+  for (const offset of [-11, 0, 11]) {
     ctx.beginPath();
-    ctx.moveTo(205, 145 + offset);
-    ctx.quadraticCurveTo(256, 115 + offset, 307, 145 + offset);
+    ctx.moveTo(208, 154 + offset);
+    ctx.quadraticCurveTo(256, 124 + offset, 304, 154 + offset);
     ctx.stroke();
   }
 
-  ctx.font = "20px Georgia";
-  ctx.fillText("Not just a Perfume... It's Your Personal Signature!", 256, 182);
+  ctx.font = "19px Georgia";
+  ctx.fillText("Not just a Perfume... It's Your Personal Signature!", 256, 193);
 
-  const gradient = ctx.createRadialGradient(220, 280, 12, 256, 315, 96);
-  gradient.addColorStop(0, "#f3cb6a");
-  gradient.addColorStop(0.48, "#c88d25");
-  gradient.addColorStop(1, "#4d2b08");
+  const gradient = ctx.createRadialGradient(220, 300, 12, 256, 340, 104);
+  gradient.addColorStop(0, "#f5d070");
+  gradient.addColorStop(0.48, "#c98d25");
+  gradient.addColorStop(1, "#4e2b08");
   ctx.fillStyle = gradient;
   ctx.beginPath();
-  ctx.arc(256, 326, 92, 0, Math.PI * 2);
+  ctx.arc(256, 352, 98, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = gold;
   ctx.lineWidth = 6;
@@ -161,20 +189,20 @@ function createLabelTexture(name: string) {
   ctx.lineWidth = 7;
   for (let i = 0; i < 3; i += 1) {
     ctx.beginPath();
-    ctx.moveTo(188, 340 + i * 11);
-    ctx.bezierCurveTo(230, 300 + i * 6, 278, 375 - i * 8, 330, 322 + i * 9);
+    ctx.moveTo(182, 366 + i * 11);
+    ctx.bezierCurveTo(228, 322 + i * 6, 280, 400 - i * 8, 334, 345 + i * 9);
     ctx.stroke();
   }
 
   ctx.fillStyle = gold;
-  ctx.font = "700 45px Arial";
-  ctx.fillText(name, 256, 486);
+  ctx.font = "700 44px Arial";
+  ctx.fillText(name, 256, 554);
 
   ctx.fillStyle = "#f0eee8";
-  ctx.font = "26px Arial";
-  ctx.fillText("60ml", 256, 538);
+  ctx.font = "25px Arial";
+  ctx.fillText("60ml", 256, 615);
   ctx.font = "22px Arial";
-  ctx.fillText("Extrait De Parfum", 256, 578);
+  ctx.fillText("Extrait De Parfum", 256, 654);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -232,9 +260,9 @@ export function Bottle({
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const target = selected
-      ? { z: 1.52, y: 0.14, scale: 1.28, rotationY: 0.2 }
+      ? { z: 1.5, y: 0.12, scale: 1.25, rotationY: 0.14 }
       : active
-        ? { z: 0.19, y: 0, scale: 1.06, rotationY: 0 }
+        ? { z: 0.18, y: 0, scale: 1.055, rotationY: 0 }
         : { z: dimmed ? -0.82 : 0, y: 0, scale: dimmed ? 0.74 : 0.9, rotationY: 0 };
 
     const timeline = gsap.timeline({
@@ -268,25 +296,25 @@ export function Bottle({
           <primitive object={GLASS_MATERIAL} attach="material" />
         </mesh>
 
-        <group scale={[0.885, 0.9, 0.72]} position={[0, -0.055, -0.012]}>
+        <group scale={[0.865, 0.86, 0.7]} position={[0, -0.12, -0.012]}>
           <mesh>
             <primitive object={OUTER_GEOMETRY} attach="geometry" />
             <primitive object={LIQUID_MATERIAL} attach="material" />
           </mesh>
         </group>
 
-        <mesh position={[0, -0.795, 0.012]} scale={[0.94, 1, 0.92]}>
-          <boxGeometry args={[0.92, 0.095, 0.39, 1, 1, 1]} />
+        <mesh position={[0, -0.825, 0.005]} scale={[1, 1, 0.96]}>
+          <boxGeometry args={[0.94, 0.12, 0.4]} />
           <primitive object={GLASS_MATERIAL} attach="material" />
         </mesh>
 
-        <mesh position={[0, 0.015, 0.227]}>
-          <planeGeometry args={[0.77, 0.975]} />
+        <mesh position={[0, -0.055, 0.257]}>
+          <planeGeometry args={[0.92, 1.35]} />
           {labelTexture ? (
             <meshStandardMaterial
               map={labelTexture}
-              roughness={0.5}
-              metalness={0.04}
+              roughness={0.48}
+              metalness={0.035}
               envMapIntensity={0.7}
             />
           ) : (
@@ -294,36 +322,28 @@ export function Bottle({
           )}
         </mesh>
 
-        <mesh position={[0, 0.91, 0]}>
-          <cylinderGeometry args={[0.255, 0.28, 0.19, 48]} />
+        <mesh position={[0, 0.9, 0]}>
+          <cylinderGeometry args={[0.245, 0.27, 0.17, 64]} />
           <primitive object={GOLD_MATERIAL} attach="material" />
         </mesh>
 
-        <mesh position={[0, 1.01, 0]}>
-          <cylinderGeometry args={[0.305, 0.29, 0.065, 48]} />
+        <mesh position={[0, 0.995, 0]}>
+          <cylinderGeometry args={[0.305, 0.285, 0.055, 64]} />
           <primitive object={GOLD_HIGHLIGHT_MATERIAL} attach="material" />
         </mesh>
 
-        {[
-          { y: 1.115, rTop: 0.334, rBottom: 0.35, h: 0.12 },
-          { y: 1.215, rTop: 0.375, rBottom: 0.345, h: 0.12 },
-          { y: 1.315, rTop: 0.342, rBottom: 0.375, h: 0.12 },
-          { y: 1.415, rTop: 0.372, rBottom: 0.342, h: 0.12 },
-          { y: 1.515, rTop: 0.335, rBottom: 0.368, h: 0.11 },
-        ].map((band) => (
-          <mesh key={band.y} position={[0, band.y, 0]}>
-            <cylinderGeometry args={[band.rTop, band.rBottom, band.h, 48]} />
-            <primitive object={CAP_MATERIAL} attach="material" />
-          </mesh>
-        ))}
+        <mesh position={[0, 1.335, 0]} castShadow>
+          <primitive object={CAP_GEOMETRY} attach="geometry" />
+          <primitive object={CAP_MATERIAL} attach="material" />
+        </mesh>
 
-        <mesh position={[0, 1.59, 0]}>
-          <cylinderGeometry args={[0.33, 0.34, 0.055, 48]} />
+        <mesh position={[0, 1.66, 0]}>
+          <cylinderGeometry args={[0.32, 0.335, 0.055, 64]} />
           <primitive object={GOLD_MATERIAL} attach="material" />
         </mesh>
 
-        <mesh position={[0, 1.622, 0]}>
-          <cylinderGeometry args={[0.295, 0.315, 0.02, 48]} />
+        <mesh position={[0, 1.691, 0]}>
+          <cylinderGeometry args={[0.287, 0.31, 0.018, 64]} />
           <primitive object={GOLD_HIGHLIGHT_MATERIAL} attach="material" />
         </mesh>
       </group>
