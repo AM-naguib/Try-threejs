@@ -61,6 +61,8 @@ Current pinned foundation:
 - Seven data slots exist. Only Amber Touch contains confirmed product data; the other six intentionally remain unnamed.
 - Initial rail supports pointer drag/swipe, magnetic-style snap, wheel navigation, active-product state and selected-bottle forward animation.
 - Black/gold responsive homepage shell and product status UI are implemented.
+- GitHub Actions CI is configured to install dependencies, typecheck and production-build on every push.
+- The first CI run failed only because npm caching expected a lockfile; that cache setting was removed in commit `4eac9e5` so validation can proceed before the lockfile is generated.
 
 ## Important constraint
 
@@ -68,4 +70,4 @@ Do not invent the missing six product names, notes, prices, inspiration, reviews
 
 ## Next step
 
-Build/typecheck the scaffold, fix any implementation issues, then iterate on rail physics and bottle fidelity. In parallel collect the six remaining product names, labels and catalog data listed in `docs/QUESTIONS.md`.
+Get a clean CI typecheck/build, fix any code issues it reveals, then iterate on rail physics and bottle fidelity. In parallel collect the six remaining product names, labels and catalog data listed in `docs/QUESTIONS.md`.
