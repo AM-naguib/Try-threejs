@@ -19,29 +19,29 @@ type BottleProps = {
 };
 
 const GLASS_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: "#ece6db",
-  roughness: 0.055,
+  color: "#ffffff",
+  roughness: 0.035,
   metalness: 0,
-  transmission: 0.94,
-  thickness: 0.7,
+  transmission: 0.99,
+  thickness: 0.32,
   ior: 1.49,
   transparent: true,
-  opacity: 0.9,
-  clearcoat: 0.32,
-  clearcoatRoughness: 0.07,
-  attenuationColor: new THREE.Color("#d7c8ad"),
-  attenuationDistance: 2.2,
-  envMapIntensity: 1.9,
+  opacity: 0.64,
+  clearcoat: 0.36,
+  clearcoatRoughness: 0.05,
+  attenuationColor: new THREE.Color("#f7f2e9"),
+  attenuationDistance: 4.5,
+  envMapIntensity: 2.05,
 });
 
 const LIQUID_MATERIAL = new THREE.MeshPhysicalMaterial({
-  color: "#160b05",
-  roughness: 0.2,
-  transmission: 0.08,
-  thickness: 0.5,
+  color: "#090503",
+  roughness: 0.16,
+  transmission: 0.02,
+  thickness: 0.34,
   transparent: true,
-  opacity: 0.82,
-  envMapIntensity: 0.85,
+  opacity: 0.96,
+  envMapIntensity: 0.72,
 });
 
 const GOLD_MATERIAL = new THREE.MeshStandardMaterial({
@@ -49,6 +49,8 @@ const GOLD_MATERIAL = new THREE.MeshStandardMaterial({
   metalness: 0.97,
   roughness: 0.11,
   envMapIntensity: 2.2,
+  emissive: new THREE.Color("#2a1700"),
+  emissiveIntensity: 0.18,
 });
 
 const GOLD_TOP_MATERIAL = new THREE.MeshStandardMaterial({
@@ -84,7 +86,7 @@ export function Bottle({
   const model = useMemo(() => {
     referenceTexture.colorSpace = THREE.SRGBColorSpace;
     referenceTexture.flipY = true;
-    referenceTexture.anisotropy = 4;
+    referenceTexture.anisotropy = 8;
     referenceTexture.needsUpdate = true;
 
     const labelMaterial = new THREE.MeshStandardMaterial({
