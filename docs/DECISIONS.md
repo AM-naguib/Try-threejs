@@ -82,3 +82,7 @@ The owner explicitly requires no guessing. A single front photograph cannot dete
 
 ### D-026 — Front-reference fidelity overrides previous prototype GLB
 D-025 supersedes the prototype implementation parts of D-011, D-021 and D-024 where they would force inferred geometry. The final product can still use true 3D, but the current implementation must not manufacture unseen geometry simply to satisfy a format preference.
+
+
+### D-027 — Transparent bottle asset is generated offline
+The interactive prototype should use a preprocessed transparent WebP derived from the supplied front product photo. White-background removal, edge feathering and white-matte decontamination happen in the build asset step with Sharp. Runtime Three.js uses a normal transparent texture; do not use a chroma-key shader for the bottle.
