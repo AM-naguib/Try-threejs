@@ -162,6 +162,7 @@ h1 {
 
 .dom-bottle {
   --image-scale: 1;
+  --image-lift: 0px;
   --hanger-extra: 0px;
   --hanger-opacity: 1;
   --aura-opacity: 0;
@@ -199,7 +200,7 @@ h1 {
   left: 50%;
   width: 78%;
   aspect-ratio: 1 / 1.2;
-  transform: translateX(-50%) scale(.94);
+  transform: translate3d(-50%, var(--image-lift), 0) scale(.94);
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 42%, rgba(225,166,54,.28), rgba(153,95,16,.11) 38%, transparent 70%);
@@ -220,6 +221,7 @@ h1 {
   opacity: var(--hanger-opacity);
   transform-origin: 50% 0;
   will-change: height, opacity;
+  transition: box-shadow .18s linear;
 }
 
 .bottle-hanger::before,
@@ -247,7 +249,7 @@ h1 {
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
-  transform: translateZ(0) scale(var(--image-scale));
+  transform: translate3d(0, var(--image-lift), 0) scale(var(--image-scale));
   transform-origin: 50% 0;
   will-change: transform;
 }
