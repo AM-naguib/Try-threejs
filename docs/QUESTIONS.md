@@ -5,7 +5,7 @@ There are currently **no questions blocking the interactive rail prototype**.
 ## Confirmed
 
 - The same Amber Touch bottle can be repeated seven times for testing.
-- The approved canonical bottle image is `public/products/amber-touch-approved.webp`.
+- The approved canonical bottle image is `public/products/amber-touch.avif`.
 - The current interaction only needs the bottle to move and feel interactive; it does not need true 3D.
 - The approved bottle image must be reused from the repository rather than regenerated.
 
