@@ -171,38 +171,57 @@ export function PerfumeExperience() {
 
       const previousRailVelocity = previousRailVelocityRef.current;
       const speed = clamp(Math.abs(railVelocity), 0, 4.5);
+      const speedNormalized = clamp(speed / 3.2, 0, 1);
 
       if (Math.abs(railVelocity) > 0.04) {
-        waveDirectionRef.current = Math.sign(railVelocity) || waveDirectionRef.current;
+        waveDirectionRef.current =
+          Math.sign(railVelocity) || waveDirectionRef.current;
       }
 
-      const reversal =
-        previousRailVelocity * railVelocity < -0.03
-          ? clamp(Math.abs(previousRailVelocity - railVelocity) / 3.8, 0, 1)
-          : 0;
-      const velocityKick = clamp(
-        Math.abs(railVelocity - previousRailVelocity) * 0.16,
+      const reversedDirection =
+        previousRailVelocity * railVelocity < -0.04;
+      const reversalKick = reversedDirection
+        ? clamp(Math.abs(previousRailVelocity - railVelocity) / 3.4, 0, 1)
+        : 0;
+      const accelerationKick = clamp(
+        Math.abs(railVelocity - previousRailVelocity) * 0.13,
         0,
-        0.45,
+        0.42,
       );
-      const waveDrive = reducedMotion
-        ? 0
-        : clamp(speed / 2.8 + reversal * 0.5 + velocityKick, 0, 1);
 
-      const energyFollow = 1 - Math.exp(-(draggingRef.current ? 11 : 4.5) * dt);
-      waveEnergyRef.current +=
-        (waveDrive - waveEnergyRef.current) * energyFollow;
+      if (!reducedMotion) {
+        const interactionFloor = draggingRef.current
+          ? speedNormalized * 0.72
+          : 0;
 
-      if (!draggingRef.current && speed < 0.08) {
-        waveEnergyRef.current *= Math.exp(-2.35 * dt);
+        waveEnergyRef.current = Math.max(
+          waveEnergyRef.current,
+          interactionFloor,
+        );
+
+        waveEnergyRef.current = clamp(
+          waveEnergyRef.current +
+            accelerationKick * 0.34 +
+            reversalKick * 0.5,
+          0,
+          1,
+        );
+
+        waveEnergyRef.current *= Math.exp(
+          -(draggingRef.current ? 0.72 : 1.7) * dt,
+        );
+      } else {
+        waveEnergyRef.current = 0;
       }
 
       wavePhaseRef.current +=
-        dt * (4.6 + speed * 1.35) * waveDirectionRef.current;
+        dt *
+        (3.35 + speed * 1.18) *
+        waveDirectionRef.current;
       previousRailVelocityRef.current = railVelocity;
 
       const waveEnergy = reducedMotion ? 0 : clamp(waveEnergyRef.current, 0, 1);
-      const waveAmplitude = 5 + waveEnergy * 30;
+      const waveAmplitude = waveEnergy * (18 + speedNormalized * 28);
 
       bottleRefs.current.forEach((element, index) => {
         if (!element) return;
@@ -226,27 +245,32 @@ export function PerfumeExperience() {
 
         bottleMotionRef.current[index] = motion;
 
-        const trailWeight = 0.86 + (index % 3) * 0.08;
+        const trailWeight = 0.84 + (index % 3) * 0.09;
         const lagTarget = clamp(
-          -railVelocity * 5.2 * trailWeight,
-          -24,
-          24,
+          -railVelocity * 5.8 * trailWeight,
+          -28,
+          28,
         );
 
+        const directionalRelative =
+          relative * waveDirectionRef.current;
         const wavePhase =
           wavePhaseRef.current -
-          relative * 1.52 -
-          (index % 2) * 0.08;
+          directionalRelative * 1.28 -
+          (index % 2) * 0.06;
+        const centerCalm = 1 - focusTarget * 0.42;
+        const distanceGain = 0.82 + Math.min(distance, 2.2) * 0.09;
         const waveTarget =
           Math.sin(wavePhase) *
           waveAmplitude *
-          (0.72 + Math.min(distance, 1.8) * 0.12);
+          centerCalm *
+          distanceGain;
 
         const angleTarget = clamp(
-          -railVelocity * (0.9 + (index % 4) * 0.06) +
-            Math.cos(wavePhase) * waveEnergy * 2.4,
-          -8,
-          8,
+          -railVelocity * (0.82 + (index % 4) * 0.055) +
+            Math.cos(wavePhase) * waveEnergy * 3.2 * centerCalm,
+          -9,
+          9,
         );
 
         if (reducedMotion) {
@@ -290,8 +314,8 @@ export function PerfumeExperience() {
             motion.waveY,
             motion.waveVelocity,
             waveTarget,
-            58 - (index % 3) * 3,
-            9.2,
+            48 - (index % 3) * 2.5,
+            8.1 + (index % 2) * 0.55,
             dt,
           );
         }
@@ -304,12 +328,13 @@ export function PerfumeExperience() {
 
         let x = relative * spacingRef.current + motion.lagX;
         let imageLift = 0;
-        let imageScale = 0.94 + focus * 0.075;
-        let opacity = clamp(1 - Math.max(0, distance - 0.55) * 0.09, 0.72, 1);
+        let imageScale = 0.965 + focus * 0.04;
+        let opacity = clamp(1 - Math.max(0, distance - 0.8) * 0.055, 0.82, 1);
         let angle = motion.angle;
-        let hangerExtra = clamp(focus * 12 + motion.waveY, -12, 46);
+        const centerDrop = focus * 17;
+        let hangerExtra = clamp(centerDrop + motion.waveY, -18, 58);
         let hangerOpacity = 1;
-        let aura = 0.06 + focus * 0.68 + waveEnergy * 0.08;
+        let aura = 0.035 + focus * 0.54 + waveEnergy * 0.1;
 
         if (isSelectionSubject) {
           imageLift -= selectionProgress * 70;
@@ -373,10 +398,20 @@ export function PerfumeExperience() {
             Math.abs(railVelocity) * 0.08 +
             selectionProgress * 0.32,
         );
+        const glowOffset =
+          Math.sin(wavePhaseRef.current) * waveEnergy * 9;
         shellRef.current.style.setProperty("--scene-energy", String(energy));
         shellRef.current.style.setProperty(
           "--selection-energy",
           selectionProgress.toFixed(3),
+        );
+        shellRef.current.style.setProperty(
+          "--glow-x",
+          `${(50 + glowOffset).toFixed(2)}%`,
+        );
+        shellRef.current.style.setProperty(
+          "--wave-energy",
+          waveEnergy.toFixed(3),
         );
       }
     },
@@ -467,11 +502,23 @@ export function PerfumeExperience() {
     draggingRef.current = false;
     setDragging(false);
 
+    const releaseVelocity = gestureVelocityRef.current;
     const projected =
-      targetRef.current + clamp(gestureVelocityRef.current, -4.5, 4.5) * 0.14;
+      targetRef.current + clamp(releaseVelocity, -4.5, 4.5) * 0.14;
 
     targetRef.current = Math.round(projected);
-    motionVelocityRef.current = gestureVelocityRef.current * 0.42;
+    motionVelocityRef.current = releaseVelocity * 0.42;
+
+    if (Math.abs(releaseVelocity) > 0.16) {
+      waveDirectionRef.current =
+        Math.sign(releaseVelocity) || waveDirectionRef.current;
+      waveEnergyRef.current = Math.max(
+        waveEnergyRef.current,
+        clamp(Math.abs(releaseVelocity) / 3.1, 0.26, 1),
+      );
+      wavePhaseRef.current = 0;
+    }
+
     gestureVelocityRef.current = 0;
   }, []);
 
@@ -534,6 +581,11 @@ export function PerfumeExperience() {
       -4,
       4,
     );
+    waveDirectionRef.current = Math.sign(delta) || waveDirectionRef.current;
+    waveEnergyRef.current = Math.max(
+      waveEnergyRef.current,
+      clamp(Math.abs(delta) * 1.9, 0.18, 0.72),
+    );
 
     if (wheelTimerRef.current !== null) {
       window.clearTimeout(wheelTimerRef.current);
@@ -549,6 +601,7 @@ export function PerfumeExperience() {
     "--glow-x": "50%",
     "--scene-energy": "0",
     "--selection-energy": "0",
+    "--wave-energy": "0",
     "--bottle-width": `${bottleWidth}px`,
   } as CSSProperties;
 
@@ -677,22 +730,10 @@ export function PerfumeExperience() {
               ? "Drag / swipe / scroll"
               : "Selected fragrance"}
           </span>
-          <div className="selection-dots" aria-label="Fragrance selector">
-            {fragrances.map((fragrance, index) => (
-              <button
-                key={fragrance.id}
-                className="selection-dot"
-                type="button"
-                aria-label={`${productLabel(fragrance, index)} ${index + 1}`}
-                aria-current={index === activeIndex}
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (selectedIndex === null) moveToIndex(index);
-                }}
-              />
-            ))}
-          </div>
+          <span className="wave-signature" aria-hidden="true">
+            <i />
+            WAVE MOTION
+          </span>
         </div>
       </div>
     </div>
