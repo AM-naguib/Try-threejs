@@ -18,6 +18,8 @@ type BottleMotion = {
   angleVelocity: number;
   focus: number;
   focusVelocity: number;
+  waveY: number;
+  waveVelocity: number;
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -77,6 +79,10 @@ export function PerfumeExperience() {
   const selectionVelocityRef = useRef(0);
   const activeIndexRef = useRef(0);
   const reducedMotionRef = useRef(false);
+  const waveEnergyRef = useRef(0);
+  const wavePhaseRef = useRef(0);
+  const waveDirectionRef = useRef(1);
+  const previousRailVelocityRef = useRef(0);
 
   const pointerStartX = useRef(0);
   const pointerStartPosition = useRef(0);
@@ -163,6 +169,41 @@ export function PerfumeExperience() {
       const selectionProgress = clamp(selectionProgressRef.current, 0, 1.12);
       const selectionSubject = selectionSubjectRef.current;
 
+      const previousRailVelocity = previousRailVelocityRef.current;
+      const speed = clamp(Math.abs(railVelocity), 0, 4.5);
+
+      if (Math.abs(railVelocity) > 0.04) {
+        waveDirectionRef.current = Math.sign(railVelocity) || waveDirectionRef.current;
+      }
+
+      const reversal =
+        previousRailVelocity * railVelocity < -0.03
+          ? clamp(Math.abs(previousRailVelocity - railVelocity) / 3.8, 0, 1)
+          : 0;
+      const velocityKick = clamp(
+        Math.abs(railVelocity - previousRailVelocity) * 0.16,
+        0,
+        0.45,
+      );
+      const waveDrive = reducedMotion
+        ? 0
+        : clamp(speed / 2.8 + reversal * 0.5 + velocityKick, 0, 1);
+
+      const energyFollow = 1 - Math.exp(-(draggingRef.current ? 11 : 4.5) * dt);
+      waveEnergyRef.current +=
+        (waveDrive - waveEnergyRef.current) * energyFollow;
+
+      if (!draggingRef.current && speed < 0.08) {
+        waveEnergyRef.current *= Math.exp(-2.35 * dt);
+      }
+
+      wavePhaseRef.current +=
+        dt * (4.6 + speed * 1.35) * waveDirectionRef.current;
+      previousRailVelocityRef.current = railVelocity;
+
+      const waveEnergy = reducedMotion ? 0 : clamp(waveEnergyRef.current, 0, 1);
+      const waveAmplitude = 5 + waveEnergy * 30;
+
       bottleRefs.current.forEach((element, index) => {
         if (!element) return;
 
@@ -179,20 +220,33 @@ export function PerfumeExperience() {
             angleVelocity: 0,
             focus: focusTarget,
             focusVelocity: 0,
+            waveY: 0,
+            waveVelocity: 0,
           } satisfies BottleMotion);
 
         bottleMotionRef.current[index] = motion;
 
         const trailWeight = 0.86 + (index % 3) * 0.08;
         const lagTarget = clamp(
-          -railVelocity * 8.5 * trailWeight,
-          -34,
-          34,
+          -railVelocity * 5.2 * trailWeight,
+          -24,
+          24,
         );
+
+        const wavePhase =
+          wavePhaseRef.current -
+          relative * 1.52 -
+          (index % 2) * 0.08;
+        const waveTarget =
+          Math.sin(wavePhase) *
+          waveAmplitude *
+          (0.72 + Math.min(distance, 1.8) * 0.12);
+
         const angleTarget = clamp(
-          -railVelocity * (1.15 + (index % 4) * 0.08),
-          -7.5,
-          7.5,
+          -railVelocity * (0.9 + (index % 4) * 0.06) +
+            Math.cos(wavePhase) * waveEnergy * 2.4,
+          -8,
+          8,
         );
 
         if (reducedMotion) {
@@ -202,6 +256,8 @@ export function PerfumeExperience() {
           motion.angleVelocity = 0;
           motion.focus = focusTarget;
           motion.focusVelocity = 0;
+          motion.waveY = 0;
+          motion.waveVelocity = 0;
         } else {
           [motion.lagX, motion.lagVelocity] = springStep(
             motion.lagX,
@@ -229,6 +285,15 @@ export function PerfumeExperience() {
             16,
             dt,
           );
+
+          [motion.waveY, motion.waveVelocity] = springStep(
+            motion.waveY,
+            motion.waveVelocity,
+            waveTarget,
+            58 - (index % 3) * 3,
+            9.2,
+            dt,
+          );
         }
 
         const focus = clamp(motion.focus, 0, 1.08);
@@ -238,21 +303,21 @@ export function PerfumeExperience() {
           selectionSubject !== null && !isSelectionSubject;
 
         let x = relative * spacingRef.current + motion.lagX;
-        let y = focus * 18;
-        let imageScale = 0.91 + focus * 0.105;
-        let opacity = clamp(1 - Math.max(0, distance - 0.5) * 0.13, 0.58, 1);
+        let imageLift = 0;
+        let imageScale = 0.94 + focus * 0.075;
+        let opacity = clamp(1 - Math.max(0, distance - 0.55) * 0.09, 0.72, 1);
         let angle = motion.angle;
-        let hangerExtra = focus * 11;
+        let hangerExtra = clamp(focus * 12 + motion.waveY, -12, 46);
         let hangerOpacity = 1;
-        let aura = 0.08 + focus * 0.72;
+        let aura = 0.06 + focus * 0.68 + waveEnergy * 0.08;
 
         if (isSelectionSubject) {
-          y -= selectionProgress * 78;
-          imageScale += selectionProgress * 0.16;
-          angle *= 1 - selectionProgress * 0.9;
-          hangerExtra -= selectionProgress * 13;
-          hangerOpacity = 1 - selectionProgress * 0.92;
-          aura = Math.min(1, aura + selectionProgress * 0.55);
+          imageLift -= selectionProgress * 70;
+          imageScale += selectionProgress * 0.15;
+          angle *= 1 - selectionProgress * 0.92;
+          hangerExtra = clamp(hangerExtra - selectionProgress * 14, -12, 46);
+          hangerOpacity = 1 - selectionProgress * 0.94;
+          aura = Math.min(1, aura + selectionProgress * 0.58);
           opacity = 1;
         } else if (otherDuringSelection) {
           const direction =
@@ -263,8 +328,8 @@ export function PerfumeExperience() {
                 : 1;
 
           x += direction * selectionProgress * 82;
-          y += selectionProgress * 12;
-          imageScale -= selectionProgress * 0.045;
+          imageLift += selectionProgress * 10;
+          imageScale -= selectionProgress * 0.04;
           opacity *= 1 - selectionProgress * 0.78;
           angle *= 1 - selectionProgress * 0.55;
           aura *= 1 - selectionProgress * 0.88;
@@ -275,10 +340,14 @@ export function PerfumeExperience() {
           : Math.max(1, 16 - Math.round(distance * 3));
 
         element.style.transform =
-          `translate3d(calc(-50% + ${x}px), ${y}px, 0) rotate(${angle}deg)`;
+          `translate3d(calc(-50% + ${x}px), 0, 0) rotate(${angle}deg)`;
         element.style.opacity = String(opacity);
         element.style.zIndex = String(zIndex);
         element.style.setProperty("--image-scale", imageScale.toFixed(4));
+        element.style.setProperty(
+          "--image-lift",
+          `${imageLift.toFixed(2)}px`,
+        );
         element.style.setProperty(
           "--hanger-extra",
           `${hangerExtra.toFixed(2)}px`,
@@ -300,7 +369,9 @@ export function PerfumeExperience() {
       if (shellRef.current) {
         const energy = Math.min(
           1,
-          Math.abs(railVelocity) * 0.13 + selectionProgress * 0.32,
+          waveEnergy * 0.72 +
+            Math.abs(railVelocity) * 0.08 +
+            selectionProgress * 0.32,
         );
         shellRef.current.style.setProperty("--scene-energy", String(energy));
         shellRef.current.style.setProperty(
