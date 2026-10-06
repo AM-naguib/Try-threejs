@@ -23,7 +23,7 @@ The owner approved the isolated Amber Touch bottle visual.
 
 **Canonical project path:**
 
-`public/products/amber-touch-approved.webp`
+`public/products/amber-touch.avif`
 
 This project file is now the source of truth. Whenever the implementation needs the Amber Touch image, use this file. Do not regenerate the bottle from memory or an image prompt, and do not run another masking/reconstruction pipeline unless the owner explicitly approves a replacement.
 
@@ -59,24 +59,24 @@ No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is re
 ## Repository state
 
 - `components/experience/PerfumeExperience.tsx` is the DOM rail implementation.
-- `public/products/amber-touch-approved.webp` is the approved product asset.
+- `public/products/amber-touch.avif` is the approved product asset.
 - The old `Bottle.tsx` Three.js renderer is removed.
 - The old asset-generation script is removed.
 - The seven products remain data-driven through `lib/fragrances.ts`.
 
 ## Validation
 
-Commit `18bd11d` added the approved canonical product asset.
+Commit `8984d53` is the validated recovery build using the approved Amber Touch web asset.
 
-GitHub Actions run #74 passed:
+GitHub Actions run #109 passed:
 - dependency install;
 - TypeScript validation;
 - production build.
 
-Vercel production deployment for the same commit is READY and mapped to:
+Vercel production deployment for commit `8984d53` is READY and mapped to:
 
 `https://try-threejs-nu.vercel.app`
 
 ## Next step
 
-Visually review the live DOM rail with the approved asset on mobile and desktop, then tune only composition/interaction (spacing, size, swing, snap, selected-state choreography) without altering the approved bottle image.
+Visually review the recovered bottle asset on mobile and desktop, then tune only composition/interaction (spacing, size, swing, snap, selected-state choreography) without altering the approved bottle image.
