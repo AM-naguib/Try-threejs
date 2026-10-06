@@ -104,3 +104,15 @@ The rail must behave like one physical strip. Keep one continuous position value
 
 ### D-032 — Normal drag choreography stays restrained
 During normal rail movement, bottles should not independently scale, fade or move vertically based on distance. Those simultaneous effects made the interaction feel nervous. Keep horizontal travel dominant, with at most a small shared velocity-driven swing. Richer scale/opacity choreography is reserved for deliberate product selection, not browsing.
+
+
+## 2026-10-06
+
+### D-033 — Browsing should read as a hanging gallery, not a slider
+The owner rejected a merely smooth carousel/slider feel. Keep the continuous RAF rail from D-031, but layer deliberate hanging-object choreography on top: restrained per-bottle lag, independent pendulum swing, center-focused drop/scale, hanger extension and a subtle gold aura. The goal is to preserve smooth input while making the rail feel physically staged and cinematic.
+
+### D-034 — D-032 is superseded by controlled secondary choreography
+D-032 correctly identified that multiple uncontrolled transforms made the earlier interaction nervous, but its “shared swing only” restriction is now too conservative. Per-bottle animation is allowed when it is spring-driven, bounded and tied to the hanging-gallery metaphor. Horizontal rail position remains continuous and authoritative.
+
+### D-035 — Selection visually detaches the bottle from the rail
+Selecting the centered fragrance should look like removing a suspended object from display: the hanger retracts/fades, the bottle moves upward/forward with spring motion, and neighboring bottles spread and dim. This is still implemented with DOM/CSS transforms and the approved flat product asset; no inferred 3D geometry is required.
