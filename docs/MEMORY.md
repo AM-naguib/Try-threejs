@@ -40,12 +40,12 @@ The current solution is deliberately simple:
 - velocity-aware release projection and spring settling to the nearest fragrance;
 - seamless modulo wrapping so the rail does not teleport at 01/07 or 07/07;
 - per-bottle spring lag plus a brand-driven traveling wave layered on top of the continuous rail;
-- rail velocity and direction changes inject wave energy; a phase-shifted vertical wave travels across the bottles with spring smoothing;
+- rail velocity, flick release and direction reversal inject wave energy; a phase-shifted vertical wave travels across the bottles with spring smoothing;
 - vertical wave motion is expressed primarily by changing hanger length while each bottle stays anchored to the rail, so the product reads as physically suspended rather than as a flat carousel card;
 - smooth wheel/trackpad input followed by magnetic settling;
-- the centered active bottle is visually staged rather than merely occupying a slider slot;
+- the centered active bottle is deliberately calmer than the neighboring wave so it reads as the selected crest/focus rather than a slider slot;
 - selecting the centered bottle retracts/fades its hanger, lifts the bottle forward, and spreads/fades neighboring bottles;
-- CSS/DOM presentation instead of canvas rendering.
+- the old carousel pagination dots are removed from the hero; a minimal WAVE MOTION signature remains instead;\n- the background gold glow shifts subtly with wave phase/energy;\n- CSS/DOM presentation instead of canvas rendering.
 
 This matches the actual goal: the bottle needs to feel interactive and movable, not be a freely rotatable 3D object.
 
@@ -69,9 +69,7 @@ No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is re
 
 ## Validation
 
-The continuous rail foundation remains in `ec375be` / `c40694b`. The hanging-gallery layer remains, and the brand-driven WAVE motion system is implemented in `43996a9` with hanger/image presentation finalized in `d20b47f`.
-
-GitHub Actions passed TypeScript validation and the production build for the hanging-gallery implementation.
+The continuous rail foundation remains in `ec375be` / `c40694b`. The branded WAVE motion refinement is validated in `923019d` with UI feedback styling in `d2378bb`.\n\nGitHub Actions passed TypeScript validation and the production build for both WAVE refinement commits.
 
 The production alias is live at:
 
@@ -79,4 +77,4 @@ The production alias is live at:
 
 ## Next step
 
-Review the WAVE motion build on the owner's iPhone. Tune wave amplitude, propagation speed, reversal/recoil energy, hanger travel, center focus and selection-detach choreography from live feedback without altering the approved bottle asset.
+Review the refined WAVE motion build on the owner's iPhone. Tune amplitude, propagation speed, flick impulse, reversal recoil and center calm from live feedback without altering the approved bottle asset.
