@@ -1,6 +1,6 @@
 # Project Memory
 
-_Last updated: 2026-10-05_
+_Last updated: 2026-10-06_
 
 ## Purpose
 
@@ -39,11 +39,12 @@ The current solution is deliberately simple:
 - requestAnimationFrame interpolation while the finger is down;
 - velocity-aware release projection and spring settling to the nearest fragrance;
 - seamless modulo wrapping so the rail does not teleport at 01/07 or 07/07;
-- no per-bottle scale/opacity/Y changes during normal dragging;
-- only a restrained shared velocity-driven swing;
+- per-bottle spring lag and independent pendulum swing layered on top of the continuous rail;
+- the bottle approaching center drops slightly from the rail, scales into focus and gains a soft gold aura;
+- hanger length extends into center focus so the product reads as physically suspended rather than as a flat carousel card;
 - smooth wheel/trackpad input followed by magnetic settling;
-- centered active state;
-- selected bottle still moves forward while the others recede;
+- the centered active bottle is visually staged rather than merely occupying a slider slot;
+- selecting the centered bottle retracts/fades its hanger, lifts the bottle forward, and spreads/fades neighboring bottles;
 - CSS/DOM presentation instead of canvas rendering.
 
 This matches the actual goal: the bottle needs to feel interactive and movable, not be a freely rotatable 3D object.
@@ -68,9 +69,9 @@ No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is re
 
 ## Validation
 
-The continuous rail motion rebuild is implemented in `ec375be` and the CSS/direct-image cleanup is implemented in `c40694b`.
+The continuous rail foundation remains in `ec375be` / `c40694b`. The luxury hanging-gallery choreography is implemented in `f1c6d17` and styled in `24c153e`.
 
-GitHub Actions passed TypeScript validation and the production build for both motion commits.
+GitHub Actions passed TypeScript validation and the production build for the hanging-gallery implementation.
 
 The production alias is live at:
 
@@ -78,4 +79,4 @@ The production alias is live at:
 
 ## Next step
 
-Review the rebuilt continuous rail on the owner's iPhone. Tune finger-follow responsiveness, release projection, spring damping, shared swing and spacing from live feedback without altering the approved bottle asset.
+Review the hanging-gallery build on the owner's iPhone. Tune the per-bottle lag, pendulum amplitude, center drop, hanger extension, aura strength and selection-detach choreography from live feedback without altering the approved bottle asset.
