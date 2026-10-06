@@ -68,14 +68,11 @@ No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is re
 
 ## Validation
 
-Commit `8984d53` is the validated recovery build using the approved Amber Touch web asset.
+The continuous rail motion rebuild is implemented in `ec375be` and the CSS/direct-image cleanup is implemented in `c40694b`.
 
-GitHub Actions run #109 passed:
-- dependency install;
-- TypeScript validation;
-- production build.
+GitHub Actions passed TypeScript validation and the production build for both motion commits.
 
-Vercel production deployment for commit `8984d53` is READY and mapped to:
+The production alias is live at:
 
 `https://try-threejs-nu.vercel.app`
 
