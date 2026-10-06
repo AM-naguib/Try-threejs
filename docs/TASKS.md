@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated implementation: commit `18bd11d` — approved bottle asset present; GitHub Actions run #74 passed install, TypeScript and production build; Vercel production is READY.
+Latest validated implementation: commit `8984d53` — valid approved bottle asset is live; GitHub Actions run #109 passed install, TypeScript and production build; Vercel production is READY.
 
 Status:
 - `[x]` complete
