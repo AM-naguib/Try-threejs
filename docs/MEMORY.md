@@ -33,15 +33,17 @@ The earlier 3D/GLB/WebGL experiments are retired for this homepage interaction.
 
 The current solution is deliberately simple:
 
-- normal DOM `<img>` bottle;
+- normal DOM `<img>` bottle using `public/products/amber-touch.avif`;
 - seven repeated instances;
-- horizontal drag/swipe;
-- velocity-aware magnetic snap;
-- edge resistance;
-- subtle bottle tilt/swing;
-- wheel/trackpad navigation;
+- one continuous rail-position value rather than index + temporary drag offsets;
+- requestAnimationFrame interpolation while the finger is down;
+- velocity-aware release projection and spring settling to the nearest fragrance;
+- seamless modulo wrapping so the rail does not teleport at 01/07 or 07/07;
+- no per-bottle scale/opacity/Y changes during normal dragging;
+- only a restrained shared velocity-driven swing;
+- smooth wheel/trackpad input followed by magnetic settling;
 - centered active state;
-- selected bottle moves/scales forward while the others recede;
+- selected bottle still moves forward while the others recede;
 - CSS/DOM presentation instead of canvas rendering.
 
 This matches the actual goal: the bottle needs to feel interactive and movable, not be a freely rotatable 3D object.
@@ -79,4 +81,4 @@ Vercel production deployment for commit `8984d53` is READY and mapped to:
 
 ## Next step
 
-Visually review the recovered bottle asset on mobile and desktop, then tune only composition/interaction (spacing, size, swing, snap, selected-state choreography) without altering the approved bottle image.
+Review the rebuilt continuous rail on the owner's iPhone. Tune finger-follow responsiveness, release projection, spring damping, shared swing and spacing from live feedback without altering the approved bottle asset.
