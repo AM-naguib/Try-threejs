@@ -145,14 +145,15 @@ h1 {
   pointer-events: auto;
   transform-origin: 50% 1.4rem;
   transition:
-    transform .58s cubic-bezier(.18,.82,.2,1),
-    opacity .4s ease,
-    filter .4s ease;
+    opacity .32s ease,
+    filter .32s ease;
   will-change: transform;
+  backface-visibility: hidden;
+  contain: layout paint;
 }
 
 .experience-shell[data-dragging="true"] .dom-bottle {
-  transition: opacity .18s linear, filter .18s linear;
+  transition: opacity .16s linear, filter .16s linear;
 }
 
 .dom-bottle[data-selected="true"] {
@@ -171,22 +172,11 @@ h1 {
 .dom-bottle img {
   display: block;
   width: 100%;
-  aspect-ratio: 500 / 560;
   height: auto;
-  visibility: hidden;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-.dom-bottle::after {
-  content: "";
-  position: absolute;
-  top: clamp(1.2rem, 3.8vh, 2.05rem);
-  left: 0;
-  width: 100%;
-  aspect-ratio: 500 / 560;
-  background: url("/products/amber-touch.avif") center / contain no-repeat;
   pointer-events: none;
+  transform: translateZ(0);
 }
 
 .dom-bottle:focus-visible {
