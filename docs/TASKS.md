@@ -4,7 +4,7 @@ _Last updated: 2026-10-05_
 
 This file is the execution checklist for the WAVE homepage. Every agent must read it before working, keep it current, and mark work complete immediately after it is actually finished.
 
-Latest validated motion implementation: `c40694b` — continuous RAF rail + direct AVIF rendering; GitHub Actions passed TypeScript and production build. Latest production alias also includes the subsequent documentation-only commits.
+Latest validated motion implementation: `24c153e` — luxury hanging-gallery choreography on top of the continuous RAF rail; GitHub Actions passed TypeScript and production build; Vercel production is READY on the live alias.
 
 Status:
 - `[x]` complete
@@ -55,11 +55,11 @@ Status:
 - [x] **T-016 — Active bottle state**: center bottle is visually active.
 - [x] **T-017 — Selection baseline**: clicking the active bottle moves it toward the camera and pushes the others back.
 - [x] **T-018 — Continuous rail physics**: one continuous rail position, requestAnimationFrame finger-follow smoothing, velocity projection, spring/inertia settling and seamless wrapping without resetting drag offsets.
-- [x] **T-019 — Restrained secondary motion**: remove per-bottle scale/opacity/Y choreography during drag; keep only a small shared velocity-driven swing so the rail stays visually stable.
-- [x] **T-020 — Cinematic selection transition**: selected bottle scales/moves forward, hero copy recedes, vignette increases and the other bottles recede.
+- [x] **T-019 — Hanging-bottle secondary motion**: each bottle now has restrained spring lag and pendulum swing while the continuous rail remains the motion source; centered-product focus is driven by proximity rather than slider-style slot transitions.
+- [x] **T-020 — Cinematic selection transition**: the centered bottle first sits lower on an extended hanger, then detaches upward/forward on selection while its hanger fades/retracts, neighboring bottles spread/recede, hero copy recedes and vignette energy increases.
 - [x] **T-021 — Detail/notes reveal system**: selected-product reveal architecture is wired to render approved inspiration/notes when data exists.
 
-- [x] **T-053 — Continuous RAF rail rebuild**: replace per-pointer React drag state + index reset snapping with a ref-driven continuous position, RAF interpolation, spring settling and seamless modulo wrapping.\n- [x] **T-054 — Direct canonical image rendering**: remove the hidden WebP + CSS pseudo-element workaround and render `public/products/amber-touch.avif` directly in the DOM image.\n- [~] **T-055 — Motion feel QA**: validate finger-follow latency, release projection, spring damping, wheel behavior and bottle spacing on the owner's iPhone; tune constants from live feedback only.\n\n## Art direction
+- [x] **T-053 — Continuous RAF rail rebuild**: replace per-pointer React drag state + index reset snapping with a ref-driven continuous position, RAF interpolation, spring settling and seamless modulo wrapping.\n- [x] **T-054 — Direct canonical image rendering**: remove the hidden WebP + CSS pseudo-element workaround and render `public/products/amber-touch.avif` directly in the DOM image.\n- [~] **T-055 — Motion feel QA**: validate finger-follow latency, release projection, spring damping, wheel behavior and bottle spacing on the owner's iPhone; tune constants from live feedback only.\n\n- [x] **T-056 — Luxury hanging-gallery choreography**: add per-bottle spring lag, independent pendulum swing, center drop/focus scaling, hanger extension and a compositor-friendly gold aura without reintroducing WebGL.\n- [x] **T-057 — Animated selection detach**: selected bottle retracts from the hanger and moves forward while the rest of the rail spreads and fades; reduced-motion users keep a simplified state.\n- [~] **T-058 — Hanging-gallery feel QA**: validate on the owner's iPhone that the new choreography feels cinematic rather than carousel-like; tune swing amplitude, lag, focus drop and selection detach from screenshot/video feedback.\n\n## Art direction
 
 - [x] **T-022 — Black + gold base identity**: keep the current WAVE visual language.
 - [x] **T-023 — Historical 3D lighting/reflection pass (superseded)**: current approved product image carries its own photographed/rendered lighting.
