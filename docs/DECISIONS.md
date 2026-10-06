@@ -93,7 +93,14 @@ Do not remove the white background by color connectivity through the bottle imag
 
 
 ### D-029 — Approved Amber Touch asset is canonical
-The owner approved the isolated Amber Touch image now stored at `public/products/amber-touch-approved.webp`. This file is the source of truth for the current product visual. Agents must reuse the project asset rather than regenerate or reinterpret the bottle from memory.
+The owner approved the isolated Amber Touch image now stored at `public/products/amber-touch.avif`. This file is the source of truth for the current product visual. Agents must reuse the project asset rather than regenerate or reinterpret the bottle from memory.
 
 ### D-030 — Current rail uses DOM images, not 3D
 For the current homepage interaction, true 3D is unnecessary. Render the approved bottle as a normal DOM image and create the physical feel with drag/swipe, velocity-aware snapping, CSS translate/scale/rotate, opacity and selected-state choreography. This decision supersedes the current-use portions of D-011, D-017, D-021, D-024, D-025, D-027 and D-028 that required Three.js/WebGL/GLB or asset-generation work for the rail.
+
+
+### D-031 — Rail motion is continuous, not index-reset animation
+The rail must behave like one physical strip. Keep one continuous position value across all seven products. During touch drag, the rendered position follows the pointer through requestAnimationFrame interpolation. On release, velocity projects the destination and a damped spring settles to the nearest fragrance. Seamless wrapping is computed from that continuous position. Do not reset a drag offset to zero and use CSS transform transitions to hide the jump.
+
+### D-032 — Normal drag choreography stays restrained
+During normal rail movement, bottles should not independently scale, fade or move vertically based on distance. Those simultaneous effects made the interaction feel nervous. Keep horizontal travel dominant, with at most a small shared velocity-driven swing. Richer scale/opacity choreography is reserved for deliberate product selection, not browsing.
