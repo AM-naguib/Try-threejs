@@ -123,3 +123,7 @@ The owner wants the interaction to feel memorable rather than like a conventiona
 
 ### D-037 — Vertical motion comes from hanger travel, not card translation
 To preserve the physical hanging metaphor, normal wave movement should keep each bottle's rail anchor fixed and vary hanger length to move the bottle vertically. Avoid moving the entire bottle button up/down as a slider card. Selection may still detach the product visually from the hanger.
+
+
+### D-038 — Avoid conventional carousel affordances
+The hero interaction should not visually read as a standard product slider. Remove conventional pagination dots from the primary rail UI. Keep product count in the information card, but let motion identity come from the WAVE behavior itself: traveling vertical propagation, hanger travel, recoil and reactive light.
