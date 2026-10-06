@@ -171,11 +171,22 @@ h1 {
 .dom-bottle img {
   display: block;
   width: 100%;
+  aspect-ratio: 500 / 560;
   height: auto;
+  visibility: hidden;
   user-select: none;
   -webkit-user-drag: none;
-  image-rendering: auto;
-  transform: translateZ(0);
+}
+
+.dom-bottle::after {
+  content: "";
+  position: absolute;
+  top: clamp(1.2rem, 3.8vh, 2.05rem);
+  left: 0;
+  width: 100%;
+  aspect-ratio: 500 / 560;
+  background: url("/products/amber-touch.avif") center / contain no-repeat;
+  pointer-events: none;
 }
 
 .dom-bottle:focus-visible {
