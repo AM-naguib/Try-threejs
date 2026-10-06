@@ -11,6 +11,15 @@ import { fragrances, productLabel } from "@/lib/fragrances";
 const PRODUCT_ASSET = "/products/amber-touch.avif";
 const PRODUCT_COUNT = fragrances.length;
 
+type BottleMotion = {
+  lagX: number;
+  lagVelocity: number;
+  angle: number;
+  angleVelocity: number;
+  focus: number;
+  focusVelocity: number;
+};
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -27,6 +36,26 @@ const wrappedDistance = (index: number, position: number) => {
   return distance;
 };
 
+const smoothstep = (value: number) => {
+  const x = clamp(value, 0, 1);
+  return x * x * (3 - 2 * x);
+};
+
+const springStep = (
+  value: number,
+  velocity: number,
+  target: number,
+  stiffness: number,
+  damping: number,
+  dt: number,
+) => {
+  const acceleration = (target - value) * stiffness - velocity * damping;
+  const nextVelocity = velocity + acceleration * dt;
+  const nextValue = value + nextVelocity * dt;
+
+  return [nextValue, nextVelocity] as const;
+};
+
 export function PerfumeExperience() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -34,6 +63,7 @@ export function PerfumeExperience() {
   const [viewportWidth, setViewportWidth] = useState(390);
 
   const bottleRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const bottleMotionRef = useRef<Array<BottleMotion | undefined>>([]);
   const shellRef = useRef<HTMLDivElement | null>(null);
 
   const positionRef = useRef(0);
@@ -42,7 +72,11 @@ export function PerfumeExperience() {
   const gestureVelocityRef = useRef(0);
   const draggingRef = useRef(false);
   const selectedIndexRef = useRef<number | null>(null);
+  const selectionSubjectRef = useRef<number | null>(null);
+  const selectionProgressRef = useRef(0);
+  const selectionVelocityRef = useRef(0);
   const activeIndexRef = useRef(0);
+  const reducedMotionRef = useRef(false);
 
   const pointerStartX = useRef(0);
   const pointerStartPosition = useRef(0);
@@ -58,6 +92,17 @@ export function PerfumeExperience() {
     updateViewport();
     window.addEventListener("resize", updateViewport);
     return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      reducedMotionRef.current = media.matches;
+    };
+
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
   }, []);
 
   const spacing = useMemo(
@@ -76,46 +121,196 @@ export function PerfumeExperience() {
 
   useEffect(() => {
     selectedIndexRef.current = selectedIndex;
+
+    if (selectedIndex !== null) {
+      selectionSubjectRef.current = selectedIndex;
+    }
   }, [selectedIndex]);
 
   const activeFragrance = fragrances[selectedIndex ?? activeIndex];
 
-  const renderRail = useCallback((position: number, visualVelocity: number) => {
-    const selected = selectedIndexRef.current;
-    const swing = clamp(-visualVelocity * 0.45, -2.25, 2.25);
+  const renderRail = useCallback(
+    (position: number, railVelocity: number, dt: number) => {
+      const reducedMotion = reducedMotionRef.current;
+      const selectionTarget = selectedIndexRef.current === null ? 0 : 1;
 
-    bottleRefs.current.forEach((element, index) => {
-      if (!element) return;
+      if (reducedMotion) {
+        selectionProgressRef.current = selectionTarget;
+        selectionVelocityRef.current = 0;
+      } else {
+        const [progress, velocity] = springStep(
+          selectionProgressRef.current,
+          selectionVelocityRef.current,
+          selectionTarget,
+          72,
+          16,
+          dt,
+        );
+        selectionProgressRef.current = progress;
+        selectionVelocityRef.current = velocity;
+      }
 
-      const relative = wrappedDistance(index, position);
-      const x = relative * spacingRef.current;
-      const distance = Math.abs(relative);
-      const isSelected = index === selected;
-      const dimmed = selected !== null && !isSelected;
+      if (
+        selectionTarget === 0 &&
+        selectionProgressRef.current < 0.002 &&
+        Math.abs(selectionVelocityRef.current) < 0.01
+      ) {
+        selectionProgressRef.current = 0;
+        selectionVelocityRef.current = 0;
+        selectionSubjectRef.current = null;
+      }
 
-      const y = isSelected ? -16 : 0;
-      const scale = isSelected ? 1.12 : 1;
-      const opacity = dimmed ? 0.16 : 1;
+      const selectionProgress = clamp(selectionProgressRef.current, 0, 1.12);
+      const selectionSubject = selectionSubjectRef.current;
 
-      element.style.transform =
-        `translate3d(calc(-50% + ${x}px), ${y}px, 0) scale(${scale}) rotate(${swing}deg)`;
-      element.style.opacity = String(opacity);
-      element.style.zIndex = String(
-        isSelected ? 12 : Math.max(1, 10 - Math.round(distance)),
-      );
-    });
+      bottleRefs.current.forEach((element, index) => {
+        if (!element) return;
 
-    const nearest = modulo(Math.round(position), PRODUCT_COUNT);
-    if (nearest !== activeIndexRef.current) {
-      activeIndexRef.current = nearest;
-      setActiveIndex(nearest);
-    }
+        const relative = wrappedDistance(index, position);
+        const distance = Math.abs(relative);
+        const focusTarget = smoothstep(1 - Math.min(1, distance));
 
-    if (shellRef.current) {
-      const energy = Math.min(1, Math.abs(visualVelocity) * 0.12);
-      shellRef.current.style.setProperty("--scene-energy", String(energy));
-    }
-  }, []);
+        const motion =
+          bottleMotionRef.current[index] ??
+          ({
+            lagX: 0,
+            lagVelocity: 0,
+            angle: 0,
+            angleVelocity: 0,
+            focus: focusTarget,
+            focusVelocity: 0,
+          } satisfies BottleMotion);
+
+        bottleMotionRef.current[index] = motion;
+
+        const trailWeight = 0.86 + (index % 3) * 0.08;
+        const lagTarget = clamp(
+          -railVelocity * 8.5 * trailWeight,
+          -34,
+          34,
+        );
+        const angleTarget = clamp(
+          -railVelocity * (1.15 + (index % 4) * 0.08),
+          -7.5,
+          7.5,
+        );
+
+        if (reducedMotion) {
+          motion.lagX = 0;
+          motion.lagVelocity = 0;
+          motion.angle = 0;
+          motion.angleVelocity = 0;
+          motion.focus = focusTarget;
+          motion.focusVelocity = 0;
+        } else {
+          [motion.lagX, motion.lagVelocity] = springStep(
+            motion.lagX,
+            motion.lagVelocity,
+            lagTarget,
+            94 - (index % 3) * 6,
+            15.5,
+            dt,
+          );
+
+          [motion.angle, motion.angleVelocity] = springStep(
+            motion.angle,
+            motion.angleVelocity,
+            angleTarget,
+            62 - (index % 3) * 3,
+            10.5,
+            dt,
+          );
+
+          [motion.focus, motion.focusVelocity] = springStep(
+            motion.focus,
+            motion.focusVelocity,
+            focusTarget,
+            76,
+            16,
+            dt,
+          );
+        }
+
+        const focus = clamp(motion.focus, 0, 1.08);
+        const isSelectionSubject =
+          selectionSubject !== null && index === selectionSubject;
+        const otherDuringSelection =
+          selectionSubject !== null && !isSelectionSubject;
+
+        let x = relative * spacingRef.current + motion.lagX;
+        let y = focus * 18;
+        let imageScale = 0.91 + focus * 0.105;
+        let opacity = clamp(1 - Math.max(0, distance - 0.5) * 0.13, 0.58, 1);
+        let angle = motion.angle;
+        let hangerExtra = focus * 11;
+        let hangerOpacity = 1;
+        let aura = 0.08 + focus * 0.72;
+
+        if (isSelectionSubject) {
+          y -= selectionProgress * 78;
+          imageScale += selectionProgress * 0.16;
+          angle *= 1 - selectionProgress * 0.9;
+          hangerExtra -= selectionProgress * 13;
+          hangerOpacity = 1 - selectionProgress * 0.92;
+          aura = Math.min(1, aura + selectionProgress * 0.55);
+          opacity = 1;
+        } else if (otherDuringSelection) {
+          const direction =
+            Math.abs(relative) > 0.08
+              ? Math.sign(relative)
+              : index < (selectionSubject ?? index)
+                ? -1
+                : 1;
+
+          x += direction * selectionProgress * 82;
+          y += selectionProgress * 12;
+          imageScale -= selectionProgress * 0.045;
+          opacity *= 1 - selectionProgress * 0.78;
+          angle *= 1 - selectionProgress * 0.55;
+          aura *= 1 - selectionProgress * 0.88;
+        }
+
+        const zIndex = isSelectionSubject
+          ? 30
+          : Math.max(1, 16 - Math.round(distance * 3));
+
+        element.style.transform =
+          `translate3d(calc(-50% + ${x}px), ${y}px, 0) rotate(${angle}deg)`;
+        element.style.opacity = String(opacity);
+        element.style.zIndex = String(zIndex);
+        element.style.setProperty("--image-scale", imageScale.toFixed(4));
+        element.style.setProperty(
+          "--hanger-extra",
+          `${hangerExtra.toFixed(2)}px`,
+        );
+        element.style.setProperty(
+          "--hanger-opacity",
+          hangerOpacity.toFixed(3),
+        );
+        element.style.setProperty("--aura-opacity", aura.toFixed(3));
+        element.style.setProperty("--focus", focus.toFixed(3));
+      });
+
+      const nearest = modulo(Math.round(position), PRODUCT_COUNT);
+      if (nearest !== activeIndexRef.current) {
+        activeIndexRef.current = nearest;
+        setActiveIndex(nearest);
+      }
+
+      if (shellRef.current) {
+        const energy = Math.min(
+          1,
+          Math.abs(railVelocity) * 0.13 + selectionProgress * 0.32,
+        );
+        shellRef.current.style.setProperty("--scene-energy", String(energy));
+        shellRef.current.style.setProperty(
+          "--selection-energy",
+          selectionProgress.toFixed(3),
+        );
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     let frame = 0;
@@ -128,13 +323,13 @@ export function PerfumeExperience() {
       const current = positionRef.current;
       const target = targetRef.current;
       let next = current;
-      let visualVelocity = 0;
+      let railVelocity = 0;
 
       if (draggingRef.current) {
-        const follow = 1 - Math.exp(-28 * dt);
+        const follow = 1 - Math.exp(-30 * dt);
         next = current + (target - current) * follow;
-        visualVelocity = (next - current) / dt;
-        motionVelocityRef.current = visualVelocity;
+        railVelocity = (next - current) / dt;
+        motionVelocityRef.current = railVelocity;
       } else {
         let velocity = motionVelocityRef.current;
         const displacement = target - current;
@@ -143,15 +338,15 @@ export function PerfumeExperience() {
           Math.abs(displacement) > 0.0008 ||
           Math.abs(velocity) > 0.008
         ) {
-          const stiffness = 88;
-          const damping = 18;
+          const stiffness = 86;
+          const damping = 17.5;
 
           const acceleration = displacement * stiffness - velocity * damping;
           velocity += acceleration * dt;
           next = current + velocity * dt;
 
           motionVelocityRef.current = velocity;
-          visualVelocity = velocity;
+          railVelocity = velocity;
         } else {
           next = target;
           motionVelocityRef.current = 0;
@@ -159,27 +354,18 @@ export function PerfumeExperience() {
       }
 
       positionRef.current = next;
-
-      const isMoving =
-        draggingRef.current ||
-        Math.abs(targetRef.current - next) > 0.0008 ||
-        Math.abs(motionVelocityRef.current) > 0.008;
-
-      if (isMoving) {
-        renderRail(next, visualVelocity);
-      }
-
+      renderRail(next, railVelocity, dt);
       frame = window.requestAnimationFrame(animate);
     };
 
-    renderRail(positionRef.current, 0);
+    renderRail(positionRef.current, 0, 1 / 60);
     frame = window.requestAnimationFrame(animate);
 
     return () => window.cancelAnimationFrame(frame);
   }, [renderRail]);
 
   useEffect(() => {
-    renderRail(positionRef.current, motionVelocityRef.current);
+    renderRail(positionRef.current, motionVelocityRef.current, 1 / 60);
   }, [spacing, selectedIndex, renderRail]);
 
   useEffect(
@@ -291,6 +477,7 @@ export function PerfumeExperience() {
   const shellStyle = {
     "--glow-x": "50%",
     "--scene-energy": "0",
+    "--selection-energy": "0",
     "--bottle-width": `${bottleWidth}px`,
   } as CSSProperties;
 
@@ -328,7 +515,7 @@ export function PerfumeExperience() {
               data-selected={selected}
               style={{
                 transform: `translate3d(calc(-50% + ${initialX}px), 0, 0)`,
-                zIndex: Math.max(1, 10 - Math.round(Math.abs(initialRelative))),
+                zIndex: Math.max(1, 16 - Math.round(Math.abs(initialRelative) * 3)),
               }}
               aria-label={productLabel(fragrance, index)}
               onClick={(event) => {
@@ -347,6 +534,7 @@ export function PerfumeExperience() {
                 setSelectedIndex(index);
               }}
             >
+              <span className="bottle-aura" aria-hidden="true" />
               <span className="bottle-hanger" aria-hidden="true" />
               <img
                 src={PRODUCT_ASSET}
