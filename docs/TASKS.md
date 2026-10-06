@@ -40,7 +40,7 @@ Status:
 
 - [x] **T-046 — Remove striped alpha artifact**: replace connectivity/flood-fill background removal with one continuous traced silhouette mask, output PNG instead of WebP for stable iOS alpha, and keep the photographic bottle intact inside the silhouette. Validated in `7091b46`, live on Vercel.\n\n- [x] **T-047 — Retina bottle sharpness pass**: render the WebGL canvas at DPR 2–3, disable texture mipmaps for the bottle, keep linear full-resolution sampling, raise anisotropy, and generate a 2× Lanczos/sharpened transparent PNG for high-density mobile displays. Validated in `55f548c`, live on Vercel.\n\n## Current product rendering
 
-- [x] **T-048 — Approved canonical bottle asset**: store the owner-approved isolated Amber Touch product at `public/products/amber-touch-approved.webp` and make it the project source of truth.
+- [x] **T-048 — Approved canonical bottle asset**: store the owner-approved isolated Amber Touch product at `public/products/amber-touch.avif` and make it the project source of truth.
 - [x] **T-049 — DOM product rendering**: remove the WebGL bottle renderer and render the canonical asset as a normal browser image.
 - [x] **T-050 — Simple rail stack**: remove obsolete Three.js / React Three Fiber / Drei / Sharp dependencies and the asset-generation script; keep the current rail on React + DOM/CSS interaction.
 - [x] **T-051 — Canonical-asset rule**: document that agents must reuse the repository asset rather than regenerate/reinterpret the bottle.
@@ -54,12 +54,12 @@ Status:
 - [x] **T-015 — Wheel/trackpad navigation**: move through fragrances on desktop.
 - [x] **T-016 — Active bottle state**: center bottle is visually active.
 - [x] **T-017 — Selection baseline**: clicking the active bottle moves it toward the camera and pushes the others back.
-- [x] **T-018 — Premium rail physics**: velocity projection, overscroll resistance, inertia-aware snapping and faster wheel cadence.
-- [x] **T-019 — Bottle secondary motion**: bottles subtly swing/twist in response to drag velocity and settle after release.
+- [x] **T-018 — Continuous rail physics**: one continuous rail position, requestAnimationFrame finger-follow smoothing, velocity projection, spring/inertia settling and seamless wrapping without resetting drag offsets.
+- [x] **T-019 — Restrained secondary motion**: remove per-bottle scale/opacity/Y choreography during drag; keep only a small shared velocity-driven swing so the rail stays visually stable.
 - [x] **T-020 — Cinematic selection transition**: selected bottle scales/moves forward, hero copy recedes, vignette increases and the other bottles recede.
 - [x] **T-021 — Detail/notes reveal system**: selected-product reveal architecture is wired to render approved inspiration/notes when data exists.
 
-## Art direction
+- [x] **T-053 — Continuous RAF rail rebuild**: replace per-pointer React drag state + index reset snapping with a ref-driven continuous position, RAF interpolation, spring settling and seamless modulo wrapping.\n- [x] **T-054 — Direct canonical image rendering**: remove the hidden WebP + CSS pseudo-element workaround and render `public/products/amber-touch.avif` directly in the DOM image.\n- [~] **T-055 — Motion feel QA**: validate finger-follow latency, release projection, spring damping, wheel behavior and bottle spacing on the owner's iPhone; tune constants from live feedback only.\n\n## Art direction
 
 - [x] **T-022 — Black + gold base identity**: keep the current WAVE visual language.
 - [x] **T-023 — Historical 3D lighting/reflection pass (superseded)**: current approved product image carries its own photographed/rendered lighting.
@@ -76,7 +76,7 @@ Status:
 ## Quality
 
 - [x] **T-030 — Desktop + mobile baseline**: responsive shell and touch support are present with normal browser image rendering.
-- [~] **T-031 — Mobile interaction tuning**: safe-area spacing and gesture resistance are improved; physical device interaction/composition pass remains.
+- [~] **T-031 — Mobile interaction tuning**: rail motion engine rebuilt to avoid pointer-event jitter and CSS snap jumps; physical-device feel/parameter tuning remains.
 - [~] **T-032 — Desktop polish**: camera, wheel cadence and selection composition improved; visual QA on multiple large viewports remains.
 - [ ] **T-033 — Reduced-motion pass**: verify the complete experience, including camera/background behavior.
 - [ ] **T-034 — Performance budget**: profile FPS, memory, draw calls and initial load once the visual pass stabilizes.
