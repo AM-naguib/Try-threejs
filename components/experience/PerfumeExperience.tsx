@@ -33,18 +33,19 @@ export function PerfumeExperience() {
   }, []);
 
   const spacing = useMemo(
-    () => clamp(viewportWidth * 0.58, 190, 360),
+    () => clamp(viewportWidth * 0.56, 205, 340),
     [viewportWidth],
   );
 
   const bottleWidth = useMemo(
-    () => clamp(viewportWidth * 0.46, 180, 320),
+    () => clamp(viewportWidth * 0.60, 220, 360),
     [viewportWidth],
   );
 
   const activeFragrance = fragrances[selectedIndex ?? activeIndex];
-  const clampIndex = useCallback(
-    (value: number) => clamp(value, 0, fragrances.length - 1),
+  const wrapIndex = useCallback(
+    (value: number) =>
+      ((value % fragrances.length) + fragrances.length) % fragrances.length,
     [],
   );
 
@@ -60,13 +61,13 @@ export function PerfumeExperience() {
 
     steps = clamp(steps, -2, 2);
 
-    setActiveIndex((current) => clampIndex(current + steps));
+    setActiveIndex((current) => wrapIndex(current + steps));
     setDragX(0);
     setVelocity(0);
     dragRef.current = 0;
     velocityRef.current = 0;
     setDragging(false);
-  }, [clampIndex, dragging, spacing]);
+  }, [dragging, spacing, wrapIndex]);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (selectedIndex !== null) return;
@@ -86,13 +87,6 @@ export function PerfumeExperience() {
     if (!dragging || selectedIndex !== null) return;
 
     let nextDrag = event.clientX - startX.current;
-
-    if (
-      (activeIndex === 0 && nextDrag > 0) ||
-      (activeIndex === fragrances.length - 1 && nextDrag < 0)
-    ) {
-      nextDrag *= 0.28;
-    }
 
     nextDrag = clamp(nextDrag, -spacing * 2.3, spacing * 2.3);
     dragRef.current = nextDrag;
@@ -122,7 +116,7 @@ export function PerfumeExperience() {
 
     wheelLock.current = true;
     setActiveIndex((current) =>
-      clampIndex(current + (intent > 0 ? 1 : -1)),
+      wrapIndex(current + (intent > 0 ? 1 : -1)),
     );
 
     window.setTimeout(() => {
@@ -158,7 +152,10 @@ export function PerfumeExperience() {
         <div className="dom-rail-bar" aria-hidden="true" />
 
         {fragrances.map((fragrance, index) => {
-          const relative = index - activeIndex;
+          let relative = index - activeIndex;
+          const half = Math.floor(fragrances.length / 2);
+          if (relative > half) relative -= fragrances.length;
+          if (relative < -half) relative += fragrances.length;
           const x = relative * spacing + dragX;
           const distance = Math.min(Math.abs(x) / spacing, 2.4);
           const active = index === activeIndex;
