@@ -116,3 +116,10 @@ D-032 correctly identified that multiple uncontrolled transforms made the earlie
 
 ### D-035 — Selection visually detaches the bottle from the rail
 Selecting the centered fragrance should look like removing a suspended object from display: the hanger retracts/fades, the bottle moves upward/forward with spring motion, and neighboring bottles spread and dim. This is still implemented with DOM/CSS transforms and the approved flat product asset; no inferred 3D geometry is required.
+
+
+### D-036 — Motion language is a traveling WAVE
+The owner wants the interaction to feel memorable rather than like a conventional premium carousel. Horizontal rail position remains continuous, but user input now injects wave energy that propagates across the suspended bottles with phase offsets. The WAVE brand name should be expressed through the interaction itself, not through decorative effects alone.
+
+### D-037 — Vertical motion comes from hanger travel, not card translation
+To preserve the physical hanging metaphor, normal wave movement should keep each bottle's rail anchor fixed and vary hanger length to move the bottle vertically. Avoid moving the entire bottle button up/down as a slider card. Selection may still detach the product visually from the hanger.
