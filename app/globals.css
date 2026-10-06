@@ -76,6 +76,7 @@ h1 {
 .experience-shell {
   --glow-x: 50%;
   --scene-energy: 0;
+  --selection-energy: 0;
   position: absolute;
   inset: 0;
   cursor: grab;
@@ -93,10 +94,9 @@ h1 {
 .experience-shell::before {
   z-index: 0;
   background:
-    radial-gradient(circle at var(--glow-x) 58%, rgba(183,126,33,.19), transparent 20rem),
+    radial-gradient(circle at var(--glow-x) 56%, rgba(209,151,44,.24), transparent 17rem),
     radial-gradient(circle at 50% 118%, rgba(200,154,54,.08), transparent 34rem);
-  opacity: calc(.72 + var(--scene-energy) * .2);
-  transition: background-position .2s linear;
+  opacity: calc(.68 + var(--scene-energy) * .22 + var(--selection-energy) * .12);
 }
 .experience-shell::after {
   z-index: 6;
@@ -117,6 +117,7 @@ h1 {
   height: clamp(18rem, 43vh, 30rem);
   overflow: visible;
   pointer-events: none;
+  perspective: 900px;
 }
 
 .dom-rail-bar {
@@ -126,13 +127,45 @@ h1 {
   right: -6vw;
   height: 3px;
   background:
-    linear-gradient(180deg, rgba(255,226,143,.85), rgba(137,90,20,.95));
+    linear-gradient(180deg, rgba(255,226,143,.88), rgba(137,90,20,.96));
   box-shadow:
     0 0 0 1px rgba(76,45,5,.72),
     0 .2rem 1.2rem rgba(200,154,54,.16);
 }
 
+.dom-rail-bar::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  width: min(11rem, 34vw);
+  height: 5px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(255,215,122,.72), transparent);
+  opacity: calc(.32 + var(--scene-energy) * .42);
+}
+
+.dom-rail-bar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: .45rem;
+  height: .45rem;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: #e0b35c;
+  box-shadow:
+    0 0 .8rem rgba(224,179,92,.72),
+    0 0 2.2rem rgba(200,154,54,.28);
+}
+
 .dom-bottle {
+  --image-scale: 1;
+  --hanger-extra: 0px;
+  --hanger-opacity: 1;
+  --aura-opacity: 0;
+  --hanger-base: clamp(1.4rem, 4vh, 2.25rem);
   position: absolute;
   top: 0;
   left: 50%;
@@ -143,13 +176,12 @@ h1 {
   color: inherit;
   cursor: pointer;
   pointer-events: auto;
-  transform-origin: 50% 1.4rem;
+  transform-origin: 50% 0;
   transition:
-    opacity .32s ease,
-    filter .32s ease;
-  will-change: transform;
+    opacity .28s ease,
+    filter .28s ease;
+  will-change: transform, opacity;
   backface-visibility: hidden;
-  contain: layout paint;
 }
 
 .experience-shell[data-dragging="true"] .dom-bottle {
@@ -157,26 +189,67 @@ h1 {
 }
 
 .dom-bottle[data-selected="true"] {
-  filter: drop-shadow(0 1.8rem 3rem rgba(0,0,0,.46));
+  filter: drop-shadow(0 2.25rem 3.6rem rgba(0,0,0,.56));
+}
+
+.bottle-aura {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--hanger-base) + var(--hanger-extra) + 8%);
+  left: 50%;
+  width: 78%;
+  aspect-ratio: 1 / 1.2;
+  transform: translateX(-50%) scale(.94);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(225,166,54,.28), rgba(153,95,16,.11) 38%, transparent 70%);
+  opacity: var(--aura-opacity);
+  pointer-events: none;
+  will-change: opacity;
 }
 
 .bottle-hanger {
+  position: relative;
+  z-index: 2;
   display: block;
   width: 1px;
-  height: clamp(1.4rem, 4vh, 2.25rem);
+  height: calc(var(--hanger-base) + var(--hanger-extra));
   margin: 0 auto -.2rem;
-  background: linear-gradient(180deg, #d6aa50, #71501b);
+  background: linear-gradient(180deg, #e0b65d, #6f4c16);
   box-shadow: 0 0 .45rem rgba(203,156,54,.32);
+  opacity: var(--hanger-opacity);
+  transform-origin: 50% 0;
+  will-change: height, opacity;
 }
 
+.bottle-hanger::before,
+.bottle-hanger::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: .34rem;
+  height: .34rem;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: #d4a54a;
+  box-shadow: 0 0 .55rem rgba(212,165,74,.34);
+}
+
+.bottle-hanger::before { top: -.11rem; }
+.bottle-hanger::after { bottom: -.11rem; }
+
 .dom-bottle img {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
-  transform: translateZ(0);
+  transform: translateZ(0) scale(var(--image-scale));
+  transform-origin: 50% 0;
+  will-change: transform;
 }
 
 .dom-bottle:focus-visible {
@@ -342,8 +415,8 @@ h1 {
     top: clamp(16rem, 31vh, 18rem);
     height: 19rem;
   }
-  .bottle-hanger {
-    height: 1.4rem;
+  .dom-bottle {
+    --hanger-base: 1.4rem;
   }
   h1 {
     max-width: 8ch;
@@ -370,4 +443,5 @@ h1 {
   }
   .fragrance-details { animation: none; }
   .dom-bottle { transition-duration: 0.01ms !important; }
+  .bottle-aura { display: none; }
 }
