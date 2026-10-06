@@ -22,8 +22,8 @@ This file is mandatory reading for every coding/design agent working in this rep
 - Keep visual/interaction logic modular so assets, bottle models, copy and products can be swapped later.
 - Avoid introducing dependencies without a clear reason.
 - Do not fabricate product facts, prices, notes or brand copy that the owner has not confirmed.
-- The **approved canonical bottle asset** is `public/products/amber-touch-approved.webp`. Use that exact project file whenever Amber Touch is rendered. Do not regenerate, reinterpret, redraw, crop, mask, upscale, or replace it from memory unless the owner explicitly approves a new asset.
-- The current interaction does **not** require true 3D. Keep the product as a normal DOM `<img>` and create the physical feeling with CSS transforms / pointer interaction. Do not reintroduce Three.js, WebGL, GLB generation, shaders, or image-processing pipelines unless a future requirement genuinely needs them.
+- The **approved canonical bottle asset** is `public/products/amber-touch.avif`. Use that exact project file whenever Amber Touch is rendered. Do not regenerate, reinterpret, redraw, crop, mask, upscale, or replace it from memory unless the owner explicitly approves a new asset.
+- The current interaction does **not** require true 3D. Keep the product as a normal DOM `<img>` and create the physical feeling with CSS transforms / pointer interaction. The rail position must be continuous: do not reset drag offsets to zero and hide jumps with CSS transform transitions. Use one continuous position value, requestAnimationFrame smoothing while dragging, and spring/inertia settling to the nearest product. Do not reintroduce Three.js, WebGL, GLB generation, shaders, or image-processing pipelines unless a future requirement genuinely needs them.
 
 ## Mandatory documentation update after every meaningful change
 
@@ -42,4 +42,4 @@ The experience is a full WAVE homepage built around an interactive perfume selec
 
 ## Reference bottle
 
-The supplied reference is WAVE **Amber Touch**, 60ml, Extrait De Parfum. A reference image is stored under `assets/reference/`. For the current interaction prototype, render the same approved `public/products/amber-touch-approved.webp` asset seven times. The repository asset is the source of truth.
+The supplied reference is WAVE **Amber Touch**, 60ml, Extrait De Parfum. A reference image is stored under `assets/reference/`. For the current interaction prototype, render the same approved `public/products/amber-touch.avif` asset seven times. The repository asset is the source of truth.
