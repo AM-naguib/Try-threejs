@@ -143,3 +143,7 @@ The row must not respond as a rigid strip. Different bottles use staggered sprin
 
 ### D-042 — The gallery should never look completely frozen
 When no user input or settling motion is active, the suspended bottles should retain a restrained ambient motion layer: sub-degree asynchronous sway, tiny horizontal drift, 1–3px hanger breathing and a very small light/scale pulse. This idle layer must remain secondary to interaction, fade out quickly when the user moves the rail, and be disabled for reduced-motion users.
+
+
+### D-043 — Idle motion must be physically coherent
+D-042 is refined: the gallery should not freeze, but independent looping X drift, hanger pumping and scale breathing made the bottles feel synthetic. Idle motion should behave like suspended mass under a faint shared airflow. Apply the ambient force to pendulum angle, pass it through the same spring dynamics used for interaction, keep small phase offsets between bottles, and leave hanger length/scale/X stable while resting.
