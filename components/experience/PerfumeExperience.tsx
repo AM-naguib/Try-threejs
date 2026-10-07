@@ -226,10 +226,14 @@ export function PerfumeExperience() {
         interactionEnergy < 0.08
           ? 1
           : 0;
-      const idleFollow = 1 - Math.exp(-(idleTarget > idlePresenceRef.current ? 1.6 : 5.5) * dt);
+      const idleFollow =
+        1 -
+        Math.exp(
+          -(idleTarget > idlePresenceRef.current ? 0.95 : 4.8) * dt,
+        );
       idlePresenceRef.current +=
         (idleTarget - idlePresenceRef.current) * idleFollow;
-      idlePhaseRef.current += dt * 0.78;
+      idlePhaseRef.current += dt * 0.42;
 
       const idlePresence = clamp(idlePresenceRef.current, 0, 1);
 
@@ -279,9 +283,22 @@ export function PerfumeExperience() {
           (0.35 + Math.min(distance, 1.8) * 0.22);
         const arcTarget = staticArcDrop + elasticDrop;
 
+        const ambientPhase =
+          idlePhaseRef.current + index * 0.34;
+        const ambientCenterCalm =
+          0.5 + (1 - focusTarget) * 0.5;
+        const ambientWind =
+          idlePresence *
+          ambientCenterCalm *
+          (
+            Math.sin(ambientPhase) * 0.38 +
+            Math.sin(ambientPhase * 0.47 + 1.2) * 0.12
+          );
+
         const angleTarget = clamp(
           -railVelocity * (1.05 + followOrder * 0.72) +
-            reversal * direction * (2.2 + followOrder * 2.4),
+            reversal * direction * (2.2 + followOrder * 2.4) +
+            ambientWind,
           -9.5,
           9.5,
         );
@@ -335,30 +352,6 @@ export function PerfumeExperience() {
 
         const focus = clamp(motion.focus, 0, 1.06);
 
-        const idlePhase =
-          idlePhaseRef.current +
-          index * 1.07 +
-          Math.sin(index * 1.9) * 0.16;
-        const idleCenterCalm = 0.42 + (1 - focus) * 0.58;
-        const idleAngle =
-          Math.sin(idlePhase) *
-          0.62 *
-          idlePresence *
-          idleCenterCalm;
-        const idleHang =
-          Math.sin(idlePhase * 0.93 + 0.7) *
-          2.35 *
-          idlePresence *
-          (0.7 + (1 - focus) * 0.3);
-        const idleX =
-          Math.cos(idlePhase * 0.81 - 0.4) *
-          1.7 *
-          idlePresence *
-          idleCenterCalm;
-        const idleBreath =
-          (0.5 + 0.5 * Math.sin(idlePhase * 0.58 + 1.1)) *
-          idlePresence;
-
         const isSelectionSubject =
           selectionSubject !== null && index === selectionSubject;
         const otherDuringSelection =
@@ -366,26 +359,21 @@ export function PerfumeExperience() {
 
         let x =
           magneticRelative * spacingRef.current +
-          motion.trailX +
-          idleX;
+          motion.trailX;
         let imageLift = 0;
-        let imageScale =
-          0.925 +
-          focus * 0.105 +
-          idleBreath * 0.0025;
+        let imageScale = 0.925 + focus * 0.105;
         let opacity = clamp(
           1 - Math.max(0, distance - 0.85) * 0.08,
           0.72,
           1,
         );
-        let angle = motion.angle + idleAngle;
-        let hangerExtra = clamp(motion.arcY + idleHang, -8, 60);
+        let angle = motion.angle;
+        let hangerExtra = clamp(motion.arcY, -8, 60);
         let hangerOpacity = 1;
         let aura =
           0.025 +
           focus * 0.52 +
-          interactionEnergy * magnetZone * 0.11 +
-          idleBreath * focus * 0.035;
+          interactionEnergy * magnetZone * 0.11;
 
         if (isSelectionSubject) {
           imageLift -= selectionProgress * 68;
