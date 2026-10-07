@@ -12,14 +12,14 @@ const PRODUCT_ASSET = "/products/amber-touch.avif";
 const PRODUCT_COUNT = fragrances.length;
 
 type BottleMotion = {
-  lagX: number;
-  lagVelocity: number;
+  trailX: number;
+  trailVelocity: number;
+  arcY: number;
+  arcVelocity: number;
   angle: number;
   angleVelocity: number;
   focus: number;
   focusVelocity: number;
-  waveY: number;
-  waveVelocity: number;
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -58,6 +58,15 @@ const springStep = (
   return [nextValue, nextVelocity] as const;
 };
 
+const applySoftMagnet = (position: number) => {
+  const nearest = Math.round(position);
+  const delta = position - nearest;
+  const distance = Math.abs(delta);
+  const strength = smoothstep(1 - distance / 0.34);
+
+  return position - delta * strength * 0.24;
+};
+
 export function PerfumeExperience() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -79,10 +88,9 @@ export function PerfumeExperience() {
   const selectionVelocityRef = useRef(0);
   const activeIndexRef = useRef(0);
   const reducedMotionRef = useRef(false);
-  const waveEnergyRef = useRef(0);
-  const wavePhaseRef = useRef(0);
-  const waveDirectionRef = useRef(1);
+  const travelDirectionRef = useRef(1);
   const previousRailVelocityRef = useRef(0);
+  const interactionEnergyRef = useRef(0);
 
   const pointerStartX = useRef(0);
   const pointerStartPosition = useRef(0);
@@ -112,12 +120,12 @@ export function PerfumeExperience() {
   }, []);
 
   const spacing = useMemo(
-    () => clamp(viewportWidth * 0.56, 205, 340),
+    () => clamp(viewportWidth * 0.58, 215, 350),
     [viewportWidth],
   );
 
   const bottleWidth = useMemo(
-    () => clamp(viewportWidth * 0.60, 220, 360),
+    () => clamp(viewportWidth * 0.54, 205, 330),
     [viewportWidth],
   );
 
@@ -168,127 +176,124 @@ export function PerfumeExperience() {
 
       const selectionProgress = clamp(selectionProgressRef.current, 0, 1.12);
       const selectionSubject = selectionSubjectRef.current;
-
       const previousRailVelocity = previousRailVelocityRef.current;
-      const speed = clamp(Math.abs(railVelocity), 0, 4.5);
+      const speed = clamp(Math.abs(railVelocity), 0, 4.8);
       const speedNormalized = clamp(speed / 3.2, 0, 1);
 
-      if (Math.abs(railVelocity) > 0.04) {
-        waveDirectionRef.current =
-          Math.sign(railVelocity) || waveDirectionRef.current;
+      if (Math.abs(railVelocity) > 0.035) {
+        travelDirectionRef.current =
+          Math.sign(railVelocity) || travelDirectionRef.current;
       }
 
-      const reversedDirection =
-        previousRailVelocity * railVelocity < -0.04;
-      const reversalKick = reversedDirection
-        ? clamp(Math.abs(previousRailVelocity - railVelocity) / 3.4, 0, 1)
-        : 0;
-      const accelerationKick = clamp(
-        Math.abs(railVelocity - previousRailVelocity) * 0.13,
+      const reversal =
+        previousRailVelocity * railVelocity < -0.035
+          ? clamp(Math.abs(previousRailVelocity - railVelocity) / 3.2, 0, 1)
+          : 0;
+      const acceleration = clamp(
+        Math.abs(railVelocity - previousRailVelocity) / 3.8,
         0,
-        0.42,
+        1,
       );
 
-      if (!reducedMotion) {
-        const interactionFloor = draggingRef.current
-          ? speedNormalized * 0.72
-          : 0;
+      const energyTarget = reducedMotion
+        ? 0
+        : clamp(
+            speedNormalized * 0.72 +
+              reversal * 0.48 +
+              acceleration * 0.22,
+            0,
+            1,
+          );
 
-        waveEnergyRef.current = Math.max(
-          waveEnergyRef.current,
-          interactionFloor,
-        );
+      const energyFollow = 1 - Math.exp(-(draggingRef.current ? 9 : 4.2) * dt);
+      interactionEnergyRef.current +=
+        (energyTarget - interactionEnergyRef.current) * energyFollow;
 
-        waveEnergyRef.current = clamp(
-          waveEnergyRef.current +
-            accelerationKick * 0.34 +
-            reversalKick * 0.5,
-          0,
-          1,
-        );
-
-        waveEnergyRef.current *= Math.exp(
-          -(draggingRef.current ? 0.72 : 1.7) * dt,
-        );
-      } else {
-        waveEnergyRef.current = 0;
+      if (!draggingRef.current && speed < 0.06) {
+        interactionEnergyRef.current *= Math.exp(-2.2 * dt);
       }
 
-      wavePhaseRef.current +=
-        dt *
-        (3.35 + speed * 1.18) *
-        waveDirectionRef.current;
       previousRailVelocityRef.current = railVelocity;
-
-      const waveEnergy = reducedMotion ? 0 : clamp(waveEnergyRef.current, 0, 1);
-      const waveAmplitude = waveEnergy * (18 + speedNormalized * 28);
+      const interactionEnergy = clamp(interactionEnergyRef.current, 0, 1);
 
       bottleRefs.current.forEach((element, index) => {
         if (!element) return;
 
         const relative = wrappedDistance(index, position);
         const distance = Math.abs(relative);
-        const focusTarget = smoothstep(1 - Math.min(1, distance));
+
+        const magnetZone = smoothstep(1 - Math.min(distance / 0.72, 1));
+        const magneticRelative = relative * (1 - magnetZone * 0.19);
+
+        const focusTarget = smoothstep(1 - Math.min(distance / 0.9, 1));
+        const arcRatio = clamp(distance / 2.25, 0, 1);
+        const staticArcDrop = 34 * (1 - Math.pow(arcRatio, 1.55));
+
+        const direction = travelDirectionRef.current;
+        const directionalRelative = relative * direction;
+        const followOrder = clamp((directionalRelative + 2.4) / 4.8, 0, 1);
 
         const motion =
           bottleMotionRef.current[index] ??
           ({
-            lagX: 0,
-            lagVelocity: 0,
+            trailX: 0,
+            trailVelocity: 0,
+            arcY: staticArcDrop,
+            arcVelocity: 0,
             angle: 0,
             angleVelocity: 0,
             focus: focusTarget,
             focusVelocity: 0,
-            waveY: 0,
-            waveVelocity: 0,
           } satisfies BottleMotion);
 
         bottleMotionRef.current[index] = motion;
 
-        const trailWeight = 0.84 + (index % 3) * 0.09;
-        const lagTarget = clamp(
-          -railVelocity * 5.8 * trailWeight,
-          -28,
-          28,
+        const trailTarget = clamp(
+          -railVelocity *
+            (5.5 + followOrder * 7.5) *
+            (0.92 + (index % 3) * 0.045),
+          -46,
+          46,
         );
 
-        const directionalRelative =
-          relative * waveDirectionRef.current;
-        const wavePhase =
-          wavePhaseRef.current -
-          directionalRelative * 1.28 -
-          (index % 2) * 0.06;
-        const centerCalm = 1 - focusTarget * 0.42;
-        const distanceGain = 0.82 + Math.min(distance, 2.2) * 0.09;
-        const waveTarget =
-          Math.sin(wavePhase) *
-          waveAmplitude *
-          centerCalm *
-          distanceGain;
+        const elasticDrop =
+          interactionEnergy *
+          (7 + followOrder * 14) *
+          (0.35 + Math.min(distance, 1.8) * 0.22);
+        const arcTarget = staticArcDrop + elasticDrop;
 
         const angleTarget = clamp(
-          -railVelocity * (0.82 + (index % 4) * 0.055) +
-            Math.cos(wavePhase) * waveEnergy * 3.2 * centerCalm,
-          -9,
-          9,
+          -railVelocity * (1.05 + followOrder * 0.72) +
+            reversal * direction * (2.2 + followOrder * 2.4),
+          -9.5,
+          9.5,
         );
 
         if (reducedMotion) {
-          motion.lagX = 0;
-          motion.lagVelocity = 0;
+          motion.trailX = 0;
+          motion.trailVelocity = 0;
+          motion.arcY = staticArcDrop;
+          motion.arcVelocity = 0;
           motion.angle = 0;
           motion.angleVelocity = 0;
           motion.focus = focusTarget;
           motion.focusVelocity = 0;
-          motion.waveY = 0;
-          motion.waveVelocity = 0;
         } else {
-          [motion.lagX, motion.lagVelocity] = springStep(
-            motion.lagX,
-            motion.lagVelocity,
-            lagTarget,
-            94 - (index % 3) * 6,
-            15.5,
+          [motion.trailX, motion.trailVelocity] = springStep(
+            motion.trailX,
+            motion.trailVelocity,
+            trailTarget,
+            108 - followOrder * 46,
+            17.5 - followOrder * 3.5,
+            dt,
+          );
+
+          [motion.arcY, motion.arcVelocity] = springStep(
+            motion.arcY,
+            motion.arcVelocity,
+            arcTarget,
+            92 - followOrder * 38,
+            16 - followOrder * 3.2,
             dt,
           );
 
@@ -296,8 +301,8 @@ export function PerfumeExperience() {
             motion.angle,
             motion.angleVelocity,
             angleTarget,
-            62 - (index % 3) * 3,
-            10.5,
+            74 - followOrder * 30,
+            12.2 - followOrder * 2.2,
             dt,
           );
 
@@ -305,74 +310,68 @@ export function PerfumeExperience() {
             motion.focus,
             motion.focusVelocity,
             focusTarget,
-            76,
+            78,
             16,
-            dt,
-          );
-
-          [motion.waveY, motion.waveVelocity] = springStep(
-            motion.waveY,
-            motion.waveVelocity,
-            waveTarget,
-            48 - (index % 3) * 2.5,
-            8.1 + (index % 2) * 0.55,
             dt,
           );
         }
 
-        const focus = clamp(motion.focus, 0, 1.08);
+        const focus = clamp(motion.focus, 0, 1.06);
         const isSelectionSubject =
           selectionSubject !== null && index === selectionSubject;
         const otherDuringSelection =
           selectionSubject !== null && !isSelectionSubject;
 
-        let x = relative * spacingRef.current + motion.lagX;
+        let x = magneticRelative * spacingRef.current + motion.trailX;
         let imageLift = 0;
-        let imageScale = 0.965 + focus * 0.04;
-        let opacity = clamp(1 - Math.max(0, distance - 0.8) * 0.055, 0.82, 1);
+        let imageScale = 0.925 + focus * 0.105;
+        let opacity = clamp(
+          1 - Math.max(0, distance - 0.85) * 0.08,
+          0.72,
+          1,
+        );
         let angle = motion.angle;
-        const centerDrop = focus * 17;
-        let hangerExtra = clamp(centerDrop + motion.waveY, -18, 58);
+        let hangerExtra = clamp(motion.arcY, -8, 60);
         let hangerOpacity = 1;
-        let aura = 0.035 + focus * 0.54 + waveEnergy * 0.1;
+        let aura =
+          0.025 +
+          focus * 0.52 +
+          interactionEnergy * magnetZone * 0.11;
 
         if (isSelectionSubject) {
-          imageLift -= selectionProgress * 70;
-          imageScale += selectionProgress * 0.15;
+          imageLift -= selectionProgress * 68;
+          imageScale += selectionProgress * 0.145;
           angle *= 1 - selectionProgress * 0.92;
-          hangerExtra = clamp(hangerExtra - selectionProgress * 14, -12, 46);
+          hangerExtra = clamp(hangerExtra - selectionProgress * 22, -10, 60);
           hangerOpacity = 1 - selectionProgress * 0.94;
           aura = Math.min(1, aura + selectionProgress * 0.58);
           opacity = 1;
         } else if (otherDuringSelection) {
-          const direction =
+          const pushDirection =
             Math.abs(relative) > 0.08
               ? Math.sign(relative)
               : index < (selectionSubject ?? index)
                 ? -1
                 : 1;
 
-          x += direction * selectionProgress * 82;
+          x += pushDirection * selectionProgress * 76;
           imageLift += selectionProgress * 10;
-          imageScale -= selectionProgress * 0.04;
-          opacity *= 1 - selectionProgress * 0.78;
-          angle *= 1 - selectionProgress * 0.55;
-          aura *= 1 - selectionProgress * 0.88;
+          imageScale -= selectionProgress * 0.035;
+          opacity *= 1 - selectionProgress * 0.8;
+          angle *= 1 - selectionProgress * 0.6;
+          aura *= 1 - selectionProgress * 0.9;
         }
 
         const zIndex = isSelectionSubject
           ? 30
-          : Math.max(1, 16 - Math.round(distance * 3));
+          : Math.max(1, 18 - Math.round(distance * 3));
 
         element.style.transform =
           `translate3d(calc(-50% + ${x}px), 0, 0) rotate(${angle}deg)`;
         element.style.opacity = String(opacity);
         element.style.zIndex = String(zIndex);
         element.style.setProperty("--image-scale", imageScale.toFixed(4));
-        element.style.setProperty(
-          "--image-lift",
-          `${imageLift.toFixed(2)}px`,
-        );
+        element.style.setProperty("--image-lift", `${imageLift.toFixed(2)}px`);
         element.style.setProperty(
           "--hanger-extra",
           `${hangerExtra.toFixed(2)}px`,
@@ -394,12 +393,14 @@ export function PerfumeExperience() {
       if (shellRef.current) {
         const energy = Math.min(
           1,
-          waveEnergy * 0.72 +
-            Math.abs(railVelocity) * 0.08 +
-            selectionProgress * 0.32,
+          interactionEnergy * 0.72 +
+            speedNormalized * 0.16 +
+            selectionProgress * 0.3,
         );
         const glowOffset =
-          Math.sin(wavePhaseRef.current) * waveEnergy * 9;
+          clamp(-railVelocity * 4.2, -10, 10) *
+          (0.35 + interactionEnergy * 0.65);
+
         shellRef.current.style.setProperty("--scene-energy", String(energy));
         shellRef.current.style.setProperty(
           "--selection-energy",
@@ -410,8 +411,8 @@ export function PerfumeExperience() {
           `${(50 + glowOffset).toFixed(2)}%`,
         );
         shellRef.current.style.setProperty(
-          "--wave-energy",
-          waveEnergy.toFixed(3),
+          "--motion-energy",
+          interactionEnergy.toFixed(3),
         );
       }
     },
@@ -432,7 +433,7 @@ export function PerfumeExperience() {
       let railVelocity = 0;
 
       if (draggingRef.current) {
-        const follow = 1 - Math.exp(-30 * dt);
+        const follow = 1 - Math.exp(-31 * dt);
         next = current + (target - current) * follow;
         railVelocity = (next - current) / dt;
         motionVelocityRef.current = railVelocity;
@@ -444,8 +445,8 @@ export function PerfumeExperience() {
           Math.abs(displacement) > 0.0008 ||
           Math.abs(velocity) > 0.008
         ) {
-          const stiffness = 86;
-          const damping = 17.5;
+          const stiffness = 94;
+          const damping = 18.2;
 
           const acceleration = displacement * stiffness - velocity * damping;
           velocity += acceleration * dt;
@@ -504,19 +505,18 @@ export function PerfumeExperience() {
 
     const releaseVelocity = gestureVelocityRef.current;
     const projected =
-      targetRef.current + clamp(releaseVelocity, -4.5, 4.5) * 0.14;
+      targetRef.current + clamp(releaseVelocity, -4.5, 4.5) * 0.145;
 
     targetRef.current = Math.round(projected);
-    motionVelocityRef.current = releaseVelocity * 0.42;
+    motionVelocityRef.current = releaseVelocity * 0.44;
 
-    if (Math.abs(releaseVelocity) > 0.16) {
-      waveDirectionRef.current =
-        Math.sign(releaseVelocity) || waveDirectionRef.current;
-      waveEnergyRef.current = Math.max(
-        waveEnergyRef.current,
-        clamp(Math.abs(releaseVelocity) / 3.1, 0.26, 1),
+    if (Math.abs(releaseVelocity) > 0.14) {
+      travelDirectionRef.current =
+        Math.sign(releaseVelocity) || travelDirectionRef.current;
+      interactionEnergyRef.current = Math.max(
+        interactionEnergyRef.current,
+        clamp(Math.abs(releaseVelocity) / 3.2, 0.28, 1),
       );
-      wavePhaseRef.current = 0;
     }
 
     gestureVelocityRef.current = 0;
@@ -546,8 +546,9 @@ export function PerfumeExperience() {
 
     const spacingNow = Math.max(spacingRef.current, 1);
     const dx = event.clientX - pointerStartX.current;
+    const rawPosition = pointerStartPosition.current - dx / spacingNow;
 
-    targetRef.current = pointerStartPosition.current - dx / spacingNow;
+    targetRef.current = applySoftMagnet(rawPosition);
 
     if (Math.abs(dx) > 7) movedRef.current = true;
 
@@ -574,17 +575,18 @@ export function PerfumeExperience() {
 
     if (Math.abs(intent) < 1) return;
 
-    const delta = clamp(intent * 0.0042, -0.42, 0.42);
+    const delta = clamp(intent * 0.004, -0.4, 0.4);
     targetRef.current += delta;
     motionVelocityRef.current = clamp(
-      motionVelocityRef.current + delta * 4.5,
+      motionVelocityRef.current + delta * 4.6,
       -4,
       4,
     );
-    waveDirectionRef.current = Math.sign(delta) || waveDirectionRef.current;
-    waveEnergyRef.current = Math.max(
-      waveEnergyRef.current,
-      clamp(Math.abs(delta) * 1.9, 0.18, 0.72),
+    travelDirectionRef.current =
+      Math.sign(delta) || travelDirectionRef.current;
+    interactionEnergyRef.current = Math.max(
+      interactionEnergyRef.current,
+      clamp(Math.abs(delta) * 1.8, 0.16, 0.7),
     );
 
     if (wheelTimerRef.current !== null) {
@@ -594,14 +596,14 @@ export function PerfumeExperience() {
     wheelTimerRef.current = window.setTimeout(() => {
       targetRef.current = Math.round(targetRef.current);
       wheelTimerRef.current = null;
-    }, 90);
+    }, 95);
   };
 
   const shellStyle = {
     "--glow-x": "50%",
     "--scene-energy": "0",
     "--selection-energy": "0",
-    "--wave-energy": "0",
+    "--motion-energy": "0",
     "--bottle-width": `${bottleWidth}px`,
   } as CSSProperties;
 
@@ -624,6 +626,10 @@ export function PerfumeExperience() {
         {fragrances.map((fragrance, index) => {
           const initialRelative = wrappedDistance(index, 0);
           const initialX = initialRelative * spacing;
+          const initialDistance = Math.abs(initialRelative);
+          const initialArcRatio = clamp(initialDistance / 2.25, 0, 1);
+          const initialArcDrop =
+            34 * (1 - Math.pow(initialArcRatio, 1.55));
           const active = index === activeIndex;
           const selected = index === selectedIndex;
 
@@ -638,9 +644,13 @@ export function PerfumeExperience() {
               data-active={active}
               data-selected={selected}
               style={{
+                "--hanger-extra": `${initialArcDrop}px`,
                 transform: `translate3d(calc(-50% + ${initialX}px), 0, 0)`,
-                zIndex: Math.max(1, 16 - Math.round(Math.abs(initialRelative) * 3)),
-              }}
+                zIndex: Math.max(
+                  1,
+                  18 - Math.round(Math.abs(initialRelative) * 3),
+                ),
+              } as CSSProperties}
               aria-label={productLabel(fragrance, index)}
               onClick={(event) => {
                 event.stopPropagation();
@@ -730,9 +740,8 @@ export function PerfumeExperience() {
               ? "Drag / swipe / scroll"
               : "Selected fragrance"}
           </span>
-          <span className="wave-signature" aria-hidden="true">
-            <i />
-            WAVE MOTION
+          <span className="arc-motion-label" aria-hidden="true">
+            ELASTIC ARC
           </span>
         </div>
       </div>
