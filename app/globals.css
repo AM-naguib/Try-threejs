@@ -78,6 +78,7 @@ h1 {
   --scene-energy: 0;
   --selection-energy: 0;
   --motion-energy: 0;
+  --idle-energy: 0;
   position: absolute;
   inset: 0;
   cursor: grab;
@@ -97,7 +98,7 @@ h1 {
   background:
     radial-gradient(circle at var(--glow-x) 56%, rgba(209,151,44,.24), transparent 17rem),
     radial-gradient(circle at 50% 118%, rgba(200,154,54,.08), transparent 34rem);
-  opacity: calc(.68 + var(--scene-energy) * .22 + var(--selection-energy) * .12);
+  opacity: calc(.68 + var(--scene-energy) * .22 + var(--selection-energy) * .12 + var(--idle-energy) * .035);
 }
 .experience-shell::after {
   z-index: 6;
@@ -151,7 +152,7 @@ h1 {
     transparent
   );
   filter: blur(calc(.1px + var(--motion-energy) * 1.2px));
-  opacity: calc(.24 + var(--scene-energy) * .36 + var(--motion-energy) * .34);
+  opacity: calc(.24 + var(--scene-energy) * .36 + var(--motion-energy) * .34 + var(--idle-energy) * .08);
   transition: opacity .12s linear;
 }
 
