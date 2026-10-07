@@ -45,7 +45,7 @@ The current solution is deliberately simple:
 - per-bottle spring response is direction-aware, so motion propagates through neighboring bottles with domino-like follow-through instead of moving the row as one rigid strip;
 - horizontal lag, hanger depth and pendulum angle use different spring timings to create elastic recoil on direction changes;
 - center scale is intentionally restrained while side bottles remain more visible, reducing conventional carousel cues;
-- smooth wheel/trackpad input followed by magnetic settling;
+- smooth wheel/trackpad input followed by magnetic settling;\n- when completely idle, bottles keep a very slow asynchronous micro-sway: sub-degree rotation, tiny horizontal drift, 1–3px hanger breathing and a barely perceptible scale/aura pulse; the idle layer fades out immediately when drag/wheel/selection motion begins and respects reduced-motion preferences;
 - selecting the centered bottle retracts/fades its hanger, lifts the bottle forward, and spreads/fades neighboring bottles;
 - conventional carousel pagination dots remain removed; the UI now identifies the interaction as ELASTIC ARC rather than a slider control;\n- the background gold glow shifts subtly with rail velocity/interaction energy;\n- CSS/DOM presentation instead of canvas rendering.
 
@@ -71,7 +71,7 @@ No Three.js / React Three Fiber / Drei / Sharp asset-generation dependency is re
 
 ## Validation
 
-The continuous rail foundation remains in `ec375be` / `c40694b`. The Elastic Arc motion engine is implemented in `74e3569` with CSS/UI integration in `05c6194`.\n\nTypeScript validation and the production build passed for the Elastic Arc implementation.
+The continuous rail foundation remains in `ec375be` / `c40694b`. The Elastic Arc motion engine is implemented in `74e3569` with CSS/UI integration in `05c6194`. Ambient idle motion is implemented in `b1d462b` with light breathing in `c637013`.\n\nTypeScript validation and the production build passed for the idle-motion implementation.
 
 The production alias is live at:
 
@@ -79,4 +79,4 @@ The production alias is live at:
 
 ## Next step
 
-Review the Elastic Arc build on the owner's iPhone. Tune arc depth, magnetic-center strength, domino delay, recoil and center scale from live feedback without altering the approved bottle asset.
+Review the Elastic Arc idle state on the owner's iPhone. Tune idle sway amplitude, hanger breathing and idle fade timing only if the resting motion is too still or too noticeable.
