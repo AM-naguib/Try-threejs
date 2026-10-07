@@ -77,7 +77,7 @@ h1 {
   --glow-x: 50%;
   --scene-energy: 0;
   --selection-energy: 0;
-  --wave-energy: 0;
+  --motion-energy: 0;
   position: absolute;
   inset: 0;
   cursor: grab;
@@ -141,7 +141,7 @@ h1 {
   top: -2px;
   width: min(15rem, 46vw);
   height: 7px;
-  transform: translateX(-50%) scaleX(calc(.72 + var(--wave-energy) * .34));
+  transform: translateX(-50%) scaleX(calc(.72 + var(--motion-energy) * .34));
   background: linear-gradient(
     90deg,
     transparent,
@@ -150,8 +150,8 @@ h1 {
     rgba(255,215,122,.18) 82%,
     transparent
   );
-  filter: blur(calc(.1px + var(--wave-energy) * 1.2px));
-  opacity: calc(.24 + var(--scene-energy) * .36 + var(--wave-energy) * .34);
+  filter: blur(calc(.1px + var(--motion-energy) * 1.2px));
+  opacity: calc(.24 + var(--scene-energy) * .36 + var(--motion-energy) * .34);
   transition: opacity .12s linear;
 }
 
@@ -347,43 +347,24 @@ h1 {
   letter-spacing: .12em;
   text-transform: uppercase;
 }
-.wave-signature {
+.arc-motion-label {
   display: inline-flex;
   align-items: center;
   gap: .48rem;
-  color: rgba(220,177,84,.78);
-  font-size: .58rem;
-  letter-spacing: .17em;
+  color: rgba(220,177,84,.72);
+  font-size: .56rem;
+  letter-spacing: .18em;
   white-space: nowrap;
 }
 
-.wave-signature i {
-  position: relative;
-  display: block;
-  width: 1.75rem;
-  height: .45rem;
-  opacity: calc(.58 + var(--wave-energy) * .35);
-}
-
-.wave-signature i::before,
-.wave-signature i::after {
+.arc-motion-label::before {
   content: "";
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  transform-origin: 50% 50%;
-}
-
-.wave-signature i::before {
-  top: 1px;
-  transform: skewY(-10deg);
-}
-
-.wave-signature i::after {
-  bottom: 1px;
-  transform: skewY(10deg);
+  width: 1.55rem;
+  height: .42rem;
+  border-top: 1px solid rgba(220,177,84,.78);
+  border-radius: 50% 50% 0 0;
+  transform: translateY(.14rem) scaleX(calc(.82 + var(--motion-energy) * .18));
+  opacity: calc(.55 + var(--motion-energy) * .34);
 }
 
 .detail-close {
