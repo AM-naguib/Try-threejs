@@ -91,6 +91,8 @@ export function PerfumeExperience() {
   const travelDirectionRef = useRef(1);
   const previousRailVelocityRef = useRef(0);
   const interactionEnergyRef = useRef(0);
+  const idlePhaseRef = useRef(0);
+  const idlePresenceRef = useRef(0);
 
   const pointerStartX = useRef(0);
   const pointerStartPosition = useRef(0);
@@ -216,6 +218,21 @@ export function PerfumeExperience() {
       previousRailVelocityRef.current = railVelocity;
       const interactionEnergy = clamp(interactionEnergyRef.current, 0, 1);
 
+      const idleTarget =
+        !reducedMotion &&
+        !draggingRef.current &&
+        selectedIndexRef.current === null &&
+        speed < 0.055 &&
+        interactionEnergy < 0.08
+          ? 1
+          : 0;
+      const idleFollow = 1 - Math.exp(-(idleTarget > idlePresenceRef.current ? 1.6 : 5.5) * dt);
+      idlePresenceRef.current +=
+        (idleTarget - idlePresenceRef.current) * idleFollow;
+      idlePhaseRef.current += dt * 0.78;
+
+      const idlePresence = clamp(idlePresenceRef.current, 0, 1);
+
       bottleRefs.current.forEach((element, index) => {
         if (!element) return;
 
@@ -317,26 +334,58 @@ export function PerfumeExperience() {
         }
 
         const focus = clamp(motion.focus, 0, 1.06);
+
+        const idlePhase =
+          idlePhaseRef.current +
+          index * 1.07 +
+          Math.sin(index * 1.9) * 0.16;
+        const idleCenterCalm = 0.42 + (1 - focus) * 0.58;
+        const idleAngle =
+          Math.sin(idlePhase) *
+          0.62 *
+          idlePresence *
+          idleCenterCalm;
+        const idleHang =
+          Math.sin(idlePhase * 0.93 + 0.7) *
+          2.35 *
+          idlePresence *
+          (0.7 + (1 - focus) * 0.3);
+        const idleX =
+          Math.cos(idlePhase * 0.81 - 0.4) *
+          1.7 *
+          idlePresence *
+          idleCenterCalm;
+        const idleBreath =
+          (0.5 + 0.5 * Math.sin(idlePhase * 0.58 + 1.1)) *
+          idlePresence;
+
         const isSelectionSubject =
           selectionSubject !== null && index === selectionSubject;
         const otherDuringSelection =
           selectionSubject !== null && !isSelectionSubject;
 
-        let x = magneticRelative * spacingRef.current + motion.trailX;
+        let x =
+          magneticRelative * spacingRef.current +
+          motion.trailX +
+          idleX;
         let imageLift = 0;
-        let imageScale = 0.925 + focus * 0.105;
+        let imageScale =
+          0.925 +
+          focus * 0.105 +
+          idleBreath * 0.0025;
         let opacity = clamp(
           1 - Math.max(0, distance - 0.85) * 0.08,
           0.72,
           1,
         );
-        let angle = motion.angle;
-        let hangerExtra = clamp(motion.arcY, -8, 60);
+        let angle = motion.angle + idleAngle;
+        let hangerExtra = clamp(motion.arcY + idleHang, -8, 60);
         let hangerOpacity = 1;
         let aura =
           0.025 +
           focus * 0.52 +
-          interactionEnergy * magnetZone * 0.11;
+          interactionEnergy * magnetZone * 0.11 +
+          idleBreath * focus * 0.035;
 
         if (isSelectionSubject) {
           imageLift -= selectionProgress * 68;
@@ -413,6 +462,10 @@ export function PerfumeExperience() {
         shellRef.current.style.setProperty(
           "--motion-energy",
           interactionEnergy.toFixed(3),
+        );
+        shellRef.current.style.setProperty(
+          "--idle-energy",
+          idlePresence.toFixed(3),
         );
       }
     },
@@ -604,6 +657,7 @@ export function PerfumeExperience() {
     "--scene-energy": "0",
     "--selection-energy": "0",
     "--motion-energy": "0",
+    "--idle-energy": "0",
     "--bottle-width": `${bottleWidth}px`,
   } as CSSProperties;
 
