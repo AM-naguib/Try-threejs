@@ -127,3 +127,15 @@ To preserve the physical hanging metaphor, normal wave movement should keep each
 
 ### D-038 — Avoid conventional carousel affordances
 The hero interaction should not visually read as a standard product slider. Remove conventional pagination dots from the primary rail UI. Keep product count in the information card, but let motion identity come from the WAVE behavior itself: traveling vertical propagation, hanger travel, recoil and reactive light.
+
+
+## 2026-10-07
+
+### D-039 — Elastic Arc replaces traveling WAVE browse motion
+The owner wants the bottles themselves to move creatively without disassembling them and still rejects a conventional carousel feel. The primary browse choreography is now Elastic Arc: bottles move across a shallow suspended arc, the nearest bottle is softly attracted to center, and neighbors follow with direction-aware spring delay.
+
+### D-040 — Center emphasis must stay subtle
+Do not rely on a dramatically enlarged center bottle to communicate selection. Keep center scale roughly within a 8–12% visual range from surrounding bottles, preserve visibility of adjacent bottles, and use arc position, magnetic settling and depth ordering as the main focus cues.
+
+### D-041 — Domino follow-through is part of the physical metaphor
+The row must not respond as a rigid strip. Different bottles use staggered spring response based on travel direction so a drag or reversal propagates through the display. This replaces the previous traveling sine-wave motion as the main browse signature while retaining continuous RAF rail position.
